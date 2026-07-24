@@ -1,0 +1,75 @@
+{
+  "_comment": "Real CatAccum table/column mappings – confirmed from schema discovery Jul 2026.",
+
+  "kpis": {
+    "source_table":     "dbo.All_Contract_AAL",
+    "join_key":         "layerkey",
+    "gross_aal":        "GrossAAL",
+    "net_aal":          "NetofRIPAAL",
+    "contract_key":     "layerkey",
+    "department":       "Department",
+    "product":          "Product",
+    "_note":            "GrossAAL and NetofRIPAAL are in USD; divide by 1e6 for $M display"
+  },
+
+  "exposure_map": {
+    "source_table":     "dbo.All_Loss",
+    "join_key":         "layerkey",
+    "peril":            "peril",
+    "zone":             "zone",
+    "simulation_year":  "year",
+    "gross_loss":       "grloss",
+    "reinst_prem":      "GrossReinstPrem",
+    "_note":            "zone is a varchar(160) string; server-side zoneToGeo() maps it to lat/lon. grloss in USD."
+  },
+
+  "ep_curve": {
+    "source_table":     "dbo.All_Loss",
+    "simulation_year":  "year",
+    "gross_loss":       "grloss",
+    "_note":            "Annualise by grouping on year, then compute PERCENTILE_CONT for P10/P50/P90/P250"
+  },
+
+  "net_loss": {
+    "source_table":     "dbo.ReinsLoss",
+    "peril":            "peril",
+    "zone":             "zone",
+    "simulation_year":  "year",
+    "gross_loss":       "grloss",
+    "gross_net_of_rip": "GrossNetofRIP",
+    "net_of_cession":   "netofcession",
+    "net_of_both":      "NetofCessionAndRIP"
+  },
+
+  "contracts": {
+    "source_table":     "dbo.All_Contract",
+    "join_key":         "layerkey",
+    "contract_nbr":     "UWS_Contract_Nbr",
+    "cedent":           "Company",
+    "layer_desc":       "Layer_Desc",
+    "department":       "Department",
+    "product":          "Product",
+    "inception":        "Inception",
+    "expiration":       "Expiration",
+    "everest_limit":    "Everest Limit",
+    "share":            "Share",
+    "rol":              "ROL",
+    "cr":               "CR",
+    "sdf":              "SDF",
+    "roe":              "ROE",
+    "status_ind":       "status_ind",
+    "uw":               "UW",
+    "currency":         "Orig Currency",
+    "_note":            "Everest Limit is in USD float. status_ind: B=Bound, Q=Quoted, A=Authorized"
+  },
+
+  "copilot_ask": {
+    "source_table":     "dbo.All_Loss",
+    "peril_filter_col": "peril",
+    "region_filter_col":"zone",
+    "loss_col":         "grloss",
+    "year_col":         "year",
+    "contract_col":     "layerkey",
+    "_note":            "peril values include: Hurricane, Earthquake, Wildfire, Hail, etc. zone is the geographic zone string."
+  }
+}

@@ -1,0 +1,28 @@
+# Secrets and local config — never commit the live env file
+.env
+
+# Python runtime
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+.pytest_cache/
+
+# Large generated outputs — re-run analysis/compile_air_event_descriptions.py to regenerate
+analysis/air_event_descriptions_distinct.csv
+
+# Streamlit runtime logs
+streamlit.out.log
+streamlit.err.log
+
+# Node.js
+node_modules/
+
+# VS Code local settings (keep shared settings.json, exclude personal overrides)
+.vscode/settings.local.json
+
+# OS artifacts
+.DS_Store
+Thumbs.db

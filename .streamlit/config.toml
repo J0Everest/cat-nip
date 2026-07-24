@@ -1,0 +1,8 @@
+[theme]
+# Force Everest brand light theme regardless of system/browser preference
+base                     = "light"
+primaryColor             = "#235CF4"
+backgroundColor          = "#f0f4ff"
+secondaryBackgroundColor = "#e4ecfb"
+textColor                = "#061C49"
+font                     = "sans serif"

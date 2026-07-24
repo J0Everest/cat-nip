@@ -1,0 +1,486 @@
+{
+  "server": "ERRSACTDBP1",
+  "database": "CatAccum2604",
+  "air_db": "AIREvents2025_TS13",
+  "tables_scanned": 68,
+  "tables_with_description": 45,
+  "table_details": [
+    {
+      "schema": "EVERESTRE\\nschwarz",
+      "table": "TblModel22_Extended_Events_Detail",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "M22convert13to12",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "M72convert10to13",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "M92convert10to13",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_06_Australia_Bushfire_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_22_US_SevereThunderstorm_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_27_North_Atlantic_Hurricane_STD_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_27_North_Atlantic_Hurricane_WSST_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_44_Australia_SevereThunderstorm_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_51_Australia_Earthquake_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_54_Southeast_Asia_Earthquake_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_60_Northwest_Pacific_Typhoon_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_61_Australia_TropicalCyclone_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_72_Mexico_Earthquake_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "Model_92_UK_Ireland_Flood_10K",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel05",
+      "description_column": "EventDescription",
+      "rows_added": 236,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel06",
+      "description_column": "EventDescription",
+      "rows_added": 101212,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel07_High",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel07_Hist",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel07_Low",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel07_Med",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel08",
+      "description_column": "EventDescription",
+      "rows_added": 213373,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel11_TD",
+      "description_column": "EventDescription",
+      "rows_added": 3446,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel11_TI",
+      "description_column": "EventDescription",
+      "rows_added": 124,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel13",
+      "description_column": "EventDescription",
+      "rows_added": 393,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel14",
+      "description_column": "EventDescription",
+      "rows_added": 1595,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel15",
+      "description_column": "EventDescription",
+      "rows_added": 1872,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel18",
+      "description_column": "EventDescription",
+      "rows_added": 86332,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel19",
+      "description_column": "EventDescription",
+      "rows_added": 3919,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel22",
+      "description_column": "EventDescription",
+      "rows_added": 1766734,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel22_Extended_Events_Detail",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel22_Extended_Events_Detail_Unpivot",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel23",
+      "description_column": "EventDescription",
+      "rows_added": 314,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel26",
+      "description_column": "EventDescription",
+      "rows_added": 6028,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel27_STD",
+      "description_column": "EventDescription",
+      "rows_added": 28573,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel27_WSST",
+      "description_column": "EventDescription",
+      "rows_added": 2695,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel27_WSST_Row_Wise_NS",
+      "description_column": "EventDescription",
+      "rows_added": 0,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel28",
+      "description_column": "EventDescription",
+      "rows_added": 26224,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel30_STD",
+      "description_column": "EventDescription",
+      "rows_added": 530,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel31",
+      "description_column": "EventDescription",
+      "rows_added": 2261,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel33",
+      "description_column": "EventDescription",
+      "rows_added": 246,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel41",
+      "description_column": "EventDescription",
+      "rows_added": 6316,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel42",
+      "description_column": "EventDescription",
+      "rows_added": 2065,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel43",
+      "description_column": "EventDescription",
+      "rows_added": 133933,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel44",
+      "description_column": "EventDescription",
+      "rows_added": 220884,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel51",
+      "description_column": "EventDescription",
+      "rows_added": 1335,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel52_TD",
+      "description_column": "EventDescription",
+      "rows_added": 13409,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel52_TI",
+      "description_column": "EventDescription",
+      "rows_added": 215,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel53_TD",
+      "description_column": "EventDescription",
+      "rows_added": 3493,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel53_TI",
+      "description_column": "EventDescription",
+      "rows_added": 16,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel54",
+      "description_column": "EventDescription",
+      "rows_added": 358,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel55",
+      "description_column": "EventDescription",
+      "rows_added": 3644,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel58",
+      "description_column": "EventDescription",
+      "rows_added": 2942,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel60",
+      "description_column": "EventDescription",
+      "rows_added": 8310,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel61",
+      "description_column": "EventDescription",
+      "rows_added": 17511,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel68",
+      "description_column": "EventDescription",
+      "rows_added": 5136,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel70",
+      "description_column": "EventDescription",
+      "rows_added": 526,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel72",
+      "description_column": "EventDescription",
+      "rows_added": 5862,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel76",
+      "description_column": "EventDescription",
+      "rows_added": 1110,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel86",
+      "description_column": "EventDescription",
+      "rows_added": 10000,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel87",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel89",
+      "description_column": null,
+      "rows_added": 0,
+      "status": "skipped"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel90",
+      "description_column": "EventDescription",
+      "rows_added": 326,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel92",
+      "description_column": "EventDescription",
+      "rows_added": 54192,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "TblModel94",
+      "description_column": "EventDescription",
+      "rows_added": 15,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "tblModel30_WSST",
+      "description_column": "EventDescription",
+      "rows_added": 13,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "tblModel50",
+      "description_column": "EventDescription",
+      "rows_added": 556,
+      "status": "ok"
+    },
+    {
+      "schema": "dbo",
+      "table": "tblModel96",
+      "description_column": "EventDescription",
+      "rows_added": 57982,
+      "status": "ok"
+    }
+  ],
+  "distinct_descriptions": 2796256
+}

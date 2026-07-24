@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Everest Cat Scenario Explorer</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="sheet">
+    <div class="header">
+      <img src="/everest-logo.png" alt="Everest" class="header-logo" />
+      <div class="header-text">
+        <h1>Cat Scenario Explorer</h1>
+        <p>Portfolio view + Copilot question assistant</p>
+      </div>
+    </div>
+
+    <section class="copilot-card" aria-label="Copilot assistant">
+      <h2>Ask Copilot</h2>
+      <p class="copilot-subtitle">Ask how a peril in a region could impact the portfolio in CatAccum.</p>
+      <form id="copilotForm" class="copilot-form">
+        <input
+          id="copilotQuestion"
+          class="copilot-input"
+          type="text"
+          placeholder="Example: What is the impact of hurricane in Florida?"
+          aria-label="Ask Copilot a question"
+          required
+        />
+        <button id="copilotAskBtn" class="copilot-btn" type="submit">Ask</button>
+      </form>
+      <div id="copilotResponse" class="copilot-response">Ask a question to get a CatAccum-backed summary.</div>
+    </section>
+
+    <div class="toolbar">
+      <div class="meta" id="tableMeta">Loading...</div>
+    </div>
+
+    <div class="table-wrap">
+      <table id="statusTable">
+        <thead>
+          <tr>
+            <th style="width:60px"><div class="th-wrap"><span class="th-label">#</span><input class="header-filter-input" data-filter="group" placeholder="filter" /></div></th>
+            <th style="width:120px"><div class="th-wrap"><span class="th-label">As of Date</span><input class="header-filter-input" data-filter="asOfDate" placeholder="filter" /></div></th>
+            <th style="width:110px"><div class="th-wrap"><span class="th-label">Status</span><select class="header-filter-select" data-filter="status"><option value="">All</option><option>Quoted</option><option>Authorized</option><option>Bound</option></select></div></th>
+            <th style="width:95px"><div class="th-wrap"><span class="th-label">Layer Desc</span><input class="header-filter-input" data-filter="layerDesc" placeholder="filter" /></div></th>
+            <th style="width:130px"><div class="th-wrap"><span class="th-label">Terms (M)</span><input class="header-filter-input" data-filter="terms" placeholder="filter" /></div></th>
+            <th style="width:70px"><div class="th-wrap"><span class="th-label">Curr</span><input class="header-filter-input" data-filter="curr" placeholder="filter" /></div></th>
+            <th style="width:90px"><div class="th-wrap"><span class="th-label">Reinst</span><input class="header-filter-input" data-filter="reinst" placeholder="filter" /></div></th>
+            <th style="width:80px"><div class="th-wrap"><span class="th-label">ROL</span><input class="header-filter-input" data-filter="rol" placeholder="filter" /></div></th>
+            <th style="width:80px"><div class="th-wrap"><span class="th-label">CR</span><input class="header-filter-input" data-filter="cr" placeholder="filter" /></div></th>
+            <th style="width:80px"><div class="th-wrap"><span class="th-label">SDF</span><input class="header-filter-input" data-filter="sdf" placeholder="filter" /></div></th>
+            <th style="width:80px"><div class="th-wrap"><span class="th-label">ROE</span><input class="header-filter-input" data-filter="roe" placeholder="filter" /></div></th>
+            <th style="width:110px"><div class="th-wrap"><span class="th-label">Share</span><input class="header-filter-input" data-filter="finalShare" placeholder="filter" /></div></th>
+            <th style="width:110px"><div class="th-wrap"><span class="th-label">Our Limit</span><input class="header-filter-input" data-filter="ourLimit" placeholder="filter" /></div></th>
+            <th style="width:110px"><div class="th-wrap"><span class="th-label">Our Premium</span><input class="header-filter-input" data-filter="ourPremium" placeholder="filter" /></div></th>
+            <th style="width:90px"><div class="th-wrap"><span class="th-label">Rate</span><input class="header-filter-input" data-filter="finalRate" placeholder="filter" /></div></th>
+            <th style="width:130px"><div class="th-wrap"><span class="th-label">Subject Base</span><input class="header-filter-input" data-filter="subjectBase" placeholder="filter" /></div></th>
+            <th style="width:185px"><div class="th-wrap"><span class="th-label">UWS Contract #</span><input class="header-filter-input" data-filter="contract" placeholder="filter" /></div></th>
+            <th style="width:170px"><div class="th-wrap"><span class="th-label">User</span><input class="header-filter-input" data-filter="user" placeholder="filter" /></div></th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+        <tfoot id="totalsBody"></tfoot>
+      </table>
+    </div>
+
+    <div class="small">Tip: ask Copilot about peril + region scenarios, then compare against placement history below.</div>
+    <div id="error" class="error"></div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

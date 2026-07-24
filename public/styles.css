@@ -1,0 +1,149 @@
+:root {
+  /* ── Official Everest brand palette (Brand Guide Oct 2024, p.16) ── */
+  --everest-blue:   #235CF4;  /* Everest Blue  – primary brand colour     */
+  --mid-blue:       #0A3699;  /* Mid Blue      – darker anchor            */
+  --dark-blue:      #061C49;  /* Dark Blue     – deepest navy             */
+  --mid-gray:       #A4ABC8;  /* Mid Gray      – primary neutral          */
+  --light-gray:     #F5F5F5;  /* Light Gray    – backgrounds              */
+  /* Secondary (data viz only) */
+  --dark-purple:    #6929C4;
+  --light-purple:   #A56EFF;
+  --dark-teal:      #075D5D;
+  --light-teal:     #119D9A;
+  /* UI tokens */
+  --head-bg:        var(--dark-blue);
+  --head-text:      #ffffff;
+  --grid:           #d4dae8;
+  --row-a:          #f8f9fc;
+  --row-b:          #ffffff;
+  --text:           #0f1720;
+  --muted:          #5a6480;
+  --accent:         var(--everest-blue);
+  --shadow:         0 18px 44px rgba(6, 28, 73, 0.10);
+  --header-row-height: 66px;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 28px;
+  font-family: "Avenir Next LT Pro", "Avenir Next", "Segoe UI", Arial, sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at 5% 0%, #f0f4ff 0%, #e4ecfb 48%, #d9e5f7 100%);
+}
+.sheet {
+  max-width: 1400px;
+  margin: 0 auto;
+  background: #fff;
+  border: 1px solid var(--grid);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 3px solid var(--everest-blue);
+}
+.header-logo { height: 36px; width: auto; display: block; }
+.header-text { display: flex; flex-direction: column; justify-content: center; }
+.header h1 { margin:0; font-size:20px; font-weight:700; color:var(--dark-blue); }
+.header p { margin:0; color:var(--muted); font-size:12px; }
+.toolbar { display:flex; align-items:center; margin-bottom:12px; padding:10px 12px; background:var(--light-gray); border:1px solid var(--grid); border-radius:12px; }
+.meta { margin-left:auto; font-size:12px; color:var(--muted); font-weight:600; }
+.table-wrap { overflow:auto; border:1px solid var(--grid); border-radius:12px; }
+table { width:100%; min-width:1260px; border-collapse:collapse; table-layout:fixed; font-size:14px; }
+th, td { border:1px solid var(--grid); padding:9px 8px; }
+thead tr th { position:sticky; top:0; z-index:2; background:linear-gradient(180deg, var(--mid-blue) 0%, var(--dark-blue) 100%); color:var(--head-text); text-align:left; height:var(--header-row-height); }
+.th-wrap { display:flex; flex-direction:column; gap:5px; }
+.th-label { white-space:nowrap; line-height:1; font-size:12px; }
+.header-filter-input, .header-filter-select { width:100%; border:1px solid rgba(184,224,241,.55); background:rgba(255,255,255,.18); border-radius:6px; height:22px; padding:0 6px; font-size:11px; color:#f4fbff; outline:none; }
+.header-filter-select option { color:#11364c; background:#fff; }
+tbody tr.group-a td { background:var(--row-a); }
+tbody tr.group-b td { background:var(--row-b); }
+tbody tr:hover td { background:#eaeffd; }
+tfoot tr.status-total { background:#f0f3fa; font-weight:600; }
+td.center { text-align:center; }
+td.right { text-align:right; }
+td.bold { font-weight:700; }
+td.status { font-weight:700; }
+.status.Quoted   { color:#1f2937; }
+.status.Authorized { color:var(--mid-blue); }
+.status.Bound    { color:#166534; }
+.small { font-size:12px; color:var(--muted); margin-top:8px; }
+.error { color:#b91c1c; margin-top:8px; font-size:12px; }
+
+/* ── Copilot card ────────────────────────────────── */
+.copilot-card {
+  margin-bottom: 14px;
+  border: 1px solid var(--grid);
+  border-left: 5px solid var(--everest-blue);
+  background: linear-gradient(180deg, #f6f8ff 0%, #eef2fd 100%);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.copilot-card h2 {
+  margin: 0 0 2px 0;
+  color: var(--dark-blue);
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.copilot-subtitle {
+  margin: 4px 0 10px 0;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.copilot-form {
+  display: flex;
+  gap: 8px;
+}
+
+.copilot-input {
+  flex: 1;
+  border: 1px solid var(--mid-gray);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  color: var(--text);
+}
+
+.copilot-input:focus {
+  border-color: var(--everest-blue);
+  box-shadow: 0 0 0 3px rgba(35, 92, 244, 0.18);
+}
+
+.copilot-btn {
+  border: 0;
+  border-radius: 8px;
+  padding: 0 20px;
+  font-weight: 700;
+  font-family: inherit;
+  font-size: 14px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--everest-blue) 0%, var(--mid-blue) 100%);
+  cursor: pointer;
+  letter-spacing: 0.01em;
+}
+
+.copilot-btn:hover { filter: brightness(1.08); }
+.copilot-btn:disabled { opacity: 0.65; cursor: wait; }
+
+.copilot-response {
+  margin-top: 10px;
+  border: 1px solid var(--grid);
+  border-radius: 8px;
+  background: #fff;
+  min-height: 56px;
+  padding: 12px;
+  font-size: 13px;
+  color: var(--dark-blue);
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
