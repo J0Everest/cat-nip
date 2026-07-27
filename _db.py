@@ -4,8 +4,17 @@ Settings are stored in st.session_state so they persist across page switches.
 """
 import re
 import pandas as pd
-import pyodbc
 import streamlit as st
+
+try:
+    import pyodbc
+except Exception:
+    pyodbc = None
+
+try:
+    import pymssql
+except Exception:
+    pymssql = None
 
 from config import (
     DB_SERVER,
@@ -70,16 +79,47 @@ def conn_str(server: str, database: str) -> str:
 
 
 def run_sql(server: str, database: str, query: str, params=()):
-    with pyodbc.connect(conn_str(server, database)) as conn:
-        cursor = conn.cursor()
-        cursor.execute(query, params)
+    if pyodbc is not None:
+        with pyodbc.connect(conn_str(server, database)) as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, params)
 
-        # Some pages send multi-statement batches (temp tables + final SELECT).
-        # Move through non-query statements until we reach a result set.
-        while cursor.description is None:
-            if not cursor.nextset():
-                return pd.DataFrame()
+            # Some pages send multi-statement batches (temp tables + final SELECT).
+            # Move through non-query statements until we reach a result set.
+            while cursor.description is None:
+                if not cursor.nextset():
+                    return pd.DataFrame()
 
-        rows = cursor.fetchall()
-        cols = [c[0] for c in cursor.description]
-        return pd.DataFrame.from_records(rows, columns=cols)
+            rows = cursor.fetchall()
+            cols = [c[0] for c in cursor.description]
+            return pd.DataFrame.from_records(rows, columns=cols)
+
+    if pymssql is not None:
+        if DB_AUTH_MODE != "sql":
+            raise RuntimeError(
+                "pyodbc is unavailable and DB_AUTH_MODE is not 'sql'. "
+                "Use DB_AUTH_MODE=sql when running without ODBC libraries."
+            )
+        with pymssql.connect(
+            server=server,
+            user=DB_USER,
+            password=DB_PASSWORD,
+            database=database,
+            port=DB_PORT,
+            login_timeout=DB_CONNECT_TIMEOUT,
+            timeout=DB_CONNECT_TIMEOUT,
+        ) as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, params)
+
+            while cursor.description is None:
+                if not cursor.nextset():
+                    return pd.DataFrame()
+
+            rows = cursor.fetchall()
+            cols = [c[0] for c in cursor.description]
+            return pd.DataFrame.from_records(rows, columns=cols)
+
+    raise RuntimeError(
+        "No SQL driver available: pyodbc failed to load and pymssql is not installed."
+    )
