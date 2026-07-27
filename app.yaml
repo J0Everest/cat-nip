@@ -1,0 +1,33 @@
+command: ["streamlit", "run", "app.py", "--server.port", "8080", "--server.address", "0.0.0.0", "--server.headless", "true"]
+
+env:
+  - name: PORT
+    value: "8080"
+  - name: DB_SERVER_CURRENT
+    value: "ERRSACTDBP1"
+  - name: DB_CATACCUM_DATABASE
+    value: "CatAccum2604"
+  - name: AIR_EVENTS_DB
+    value: "AIREvents2025_TS13"
+  - name: INDUSTRY_DB
+    value: "Industry"
+  - name: DB_AUTH_MODE
+    value: "sql"
+  - name: ODBC_DRIVER
+    value: "ODBC Driver 18 for SQL Server"
+  - name: DB_ENCRYPT
+    value: "true"
+  - name: DB_TRUST_SERVER_CERT
+    value: "true"
+  - name: DB_PORT
+    value: "1433"
+  - name: DB_CONNECT_TIMEOUT
+    value: "30"
+  - name: DB_USER
+    valueFrom:
+      secretRef:
+        name: cat-tools/db-user
+  - name: DB_PASSWORD
+    valueFrom:
+      secretRef:
+        name: cat-tools/db-password
