@@ -1,0 +1,78 @@
+@use '@angular/material' as mat;
+
+$everest-blue: #235CF4;
+$mid-blue: #0A3699;
+$dark-blue: #061C49;
+$mid-gray: #A4ABC8;
+$light-gray: #F5F5F5;
+$border-gray: #E2E8F0;
+
+$success: #198038;
+$warning: #F1C21B;
+$danger: #DA1E28;
+
+$scenario-low: $success;
+$scenario-med: #E67E22;
+$scenario-high: $danger;
+
+html {
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$blue-palette,
+      tertiary: mat.$azure-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: 'Inter', 'Roboto', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: $light-gray;
+}
+
+.mat-mdc-button.mat-primary,
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-flat-button.mat-primary {
+  --mdc-filled-button-container-color: #{$everest-blue};
+}
+
+.catnip-pill {
+  display: inline-block;
+  background: #EBF0FE;
+  color: $mid-blue;
+  border-radius: 16px;
+  padding: 4px 14px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  margin: 3px 4px 3px 0;
+}
+
+.catnip-pill-muted {
+  background: $light-gray;
+  color: $mid-gray;
+}
+
+.catnip-badge {
+  display: inline-block;
+  border-radius: 10px;
+  padding: 2px 10px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+.catnip-badge-high { background: #D4EDDA; color: $success; }
+.catnip-badge-med  { background: #FFF3CD; color: #856404; }
+.catnip-badge-low  { background: #F8D7DA; color: $danger; }
+
+.scenario-label {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
