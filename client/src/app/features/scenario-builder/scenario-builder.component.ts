@@ -1,8 +1,10 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { Subscription } from 'rxjs';
 import { ScenarioApiService } from '../../core/services/scenario-api.service';
 import { DatabaseConfigService } from '../../core/services/database-config.service';
 import { ParsedScenario, AirTableProfile } from '../../core/models/scenario.models';
-import { CandidateEvent, AnalyzeResponse } from '../../core/models/event.models';
+import { CandidateEvent, AnalyzeResponse, SavedScenario } from '../../core/models/event.models';
 import { StepIndicatorComponent } from './components/step-indicator/step-indicator.component';
 import { PromptHeroComponent } from './components/prompt-hero/prompt-hero.component';
 import { ParsedEventCardComponent } from './components/parsed-event-card/parsed-event-card.component';
@@ -10,6 +12,7 @@ import { RefineFiltersComponent } from './components/refine-filters/refine-filte
 import { CandidateEventsTableComponent } from './components/candidate-events-table/candidate-events-table.component';
 import { ScenarioAssignmentComponent } from './components/scenario-assignment/scenario-assignment.component';
 import { ResultsDashboardComponent } from './components/results-dashboard/results-dashboard.component';
+import { SaveScenarioDialogComponent } from './components/save-scenario-dialog/save-scenario-dialog.component';
 
 export interface RefineState {
   peril: string;
@@ -45,6 +48,7 @@ export interface RefineState {
         [airTables]="airTables()"
         [airDescriptions]="airDescriptions()"
         [recommendedTable]="recommendedTable()"
+        [autoExpand]="shouldAutoExpand()"
         (filtersChanged)="onFiltersChanged($event)"
         (searchEvents)="onSearchEvents()" />
     }
@@ -57,7 +61,8 @@ export interface RefineState {
 
       <app-scenario-assignment
         [events]="selectedEvents().length ? selectedEvents() : candidates()"
-        (runAnalysis)="onRunAnalysis($event)" />
+        (runAnalysis)="onRunAnalysis($event)"
+        (saveScenario)="onSaveScenario($event)" />
     }
 
     @if (analyzeResult()) {
@@ -71,7 +76,7 @@ export interface RefineState {
     }
   `,
   styles: [`
-    :host { display: block; max-width: 1200px; margin: 0 auto; }
+    :host { display: block; max-width: 1200px; margin: 0 auto; padding-bottom: 48px; }
     .error-banner {
       background: #F8D7DA;
       color: #DA1E28;
@@ -82,9 +87,11 @@ export interface RefineState {
     }
   `],
 })
-export class ScenarioBuilderComponent {
+export class ScenarioBuilderComponent implements OnInit, OnDestroy {
   private readonly api = inject(ScenarioApiService);
   private readonly dbConfig = inject(DatabaseConfigService);
+  private readonly dialog = inject(MatDialog);
+  private loadSub?: Subscription;
 
   readonly steps = ['Describe Event', 'Refine Filters', 'Select Events', 'Assign Scenarios', 'View Results'];
 
@@ -112,6 +119,11 @@ export class ScenarioBuilderComponent {
     if (this.candidates().length > 0) return 2;
     if (this.parsed()) return 1;
     return 0;
+  });
+
+  readonly shouldAutoExpand = computed(() => {
+    const p = this.parsed();
+    return p?.confidence === 'needs_refinement';
   });
 
   onAnalyzeQuery(query: string): void {
@@ -217,5 +229,65 @@ export class ScenarioBuilderComponent {
         this.errorMsg.set(err?.error?.error ?? 'Analysis failed');
       },
     });
+  }
+
+  ngOnInit(): void {
+    this.loadSub = this.dbConfig.loadScenario$.subscribe(sc => this.onLoadScenario(sc));
+  }
+
+  ngOnDestroy(): void {
+    this.loadSub?.unsubscribe();
+  }
+
+  onSaveScenario(ids: { low: number; med: number; high: number }): void {
+    const dialogRef = this.dialog.open(SaveScenarioDialogComponent);
+    dialogRef.afterClosed().subscribe((name: string | undefined) => {
+      if (!name) return;
+      const s = this.refineState();
+      const p = this.parsed();
+      this.api.saveScenario({
+        name,
+        query_text: this.rawQuery(),
+        peril: s?.peril ?? p?.peril ?? '',
+        zone: s?.zone ?? p?.zone ?? '',
+        loss_lo: s?.lossLo ?? p?.loss_lo ?? 0,
+        loss_hi: s?.lossHi ?? p?.loss_hi ?? 300,
+        filter_mode: s?.filterMode ?? 'Industry Loss',
+        event_keyword: s?.eventKeyword ?? p?.event_keyword ?? '',
+        low_event_id: ids.low,
+        med_event_id: ids.med,
+        high_event_id: ids.high,
+        database: this.dbConfig.database(),
+        candidate_event_ids: this.candidates().map(e => e.event_id),
+      }).subscribe({
+        next: () => this.dbConfig.scenarioSaved$.next(),
+      });
+    });
+  }
+
+  private onLoadScenario(sc: SavedScenario): void {
+    this.analyzeResult.set(null);
+    this.candidates.set([]);
+    this.selectedEvents.set([]);
+
+    const parsed: ParsedScenario = {
+      peril: sc.peril || null,
+      zone: sc.zone || null,
+      model_no: null,
+      loss_lo: sc.loss_lo,
+      loss_hi: sc.loss_hi,
+      mag_lo: null,
+      mag_hi: null,
+      event_keyword: sc.event_keyword || '',
+      confidence: 'partial',
+      confidence_parts: 0,
+      confidence_total: 0,
+    };
+    this.parsed.set(parsed);
+    this.rawQuery.set(sc.query_text);
+
+    if (sc.peril && sc.peril !== 'All') {
+      this.loadAirTables(sc.peril, sc.zone, sc.query_text);
+    }
   }
 }

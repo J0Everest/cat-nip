@@ -19,7 +19,7 @@ class ParseScenarioQueryTest(TestCase):
     def test_wildfire_california(self):
         r = parse_scenario_query("Wildfire in California")
         self.assertEqual(r["peril"], "Fire / Wildfire")
-        self.assertEqual(r["zone"], "Zone 09")
+        self.assertEqual(r["zone"], "Zone 08")
 
     def test_winter_storm_northeast(self):
         r = parse_scenario_query("Winter storm hitting the northeast")

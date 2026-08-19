@@ -31,3 +31,10 @@ export interface AirTablesResponse {
 export interface AirDescriptionsResponse {
   descriptions: string[];
 }
+
+export interface ModelEntry {
+  model_no: number;
+  label: string;
+}
+
+export type ModelInfoResponse = Record<string, Record<string, ModelEntry[]>>;

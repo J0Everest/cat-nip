@@ -9,7 +9,7 @@ import { CopyButtonComponent } from '../../../../../shared/components/copy-butto
   selector: 'app-full-output-detail',
   imports: [DecimalPipe, MatTableModule, MatSortModule, CopyButtonComponent],
   template: `
-    <app-copy-button label="Copy Full Output" [data]="tsvData" />
+    <app-copy-button label="Copy Full Output" [data]="tsvData" downloadFilename="full-output-detail.csv" />
 
     <table mat-table [dataSource]="detail" matSort class="detail-table">
       <ng-container matColumnDef="layerkey">

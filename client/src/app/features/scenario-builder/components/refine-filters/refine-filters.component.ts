@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, OnInit, inject } from '@angular/core';
 import { DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
@@ -9,19 +9,21 @@ import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { DatabaseConfigService } from '../../../../core/services/database-config.service';
-import { ParsedScenario, AirTableProfile } from '../../../../core/models/scenario.models';
+import { ScenarioApiService } from '../../../../core/services/scenario-api.service';
+import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '../../../../core/models/scenario.models';
 
 @Component({
   selector: 'app-refine-filters',
   imports: [
     DecimalPipe, FormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatSliderModule, MatCheckboxModule, MatRadioModule,
-    MatButtonModule, MatProgressSpinnerModule,
+    MatButtonModule, MatChipsModule, MatProgressSpinnerModule,
   ],
   template: `
-    <mat-expansion-panel [expanded]="false" class="refine-panel">
+    <mat-expansion-panel [expanded]="autoExpand" class="refine-panel">
       <mat-expansion-panel-header>
         <mat-panel-title>Refine Filters</mat-panel-title>
       </mat-expansion-panel-header>
@@ -29,7 +31,7 @@ import { ParsedScenario, AirTableProfile } from '../../../../core/models/scenari
       <div class="filter-row">
         <mat-form-field appearance="outline" class="filter-field">
           <mat-label>Peril</mat-label>
-          <mat-select [(ngModel)]="peril" (ngModelChange)="emitChange()">
+          <mat-select [(ngModel)]="peril" (ngModelChange)="onPerilChange()">
             @for (opt of dbConfig.perilOptions(); track opt) {
               <mat-option [value]="opt">{{ opt }}</mat-option>
             }
@@ -42,13 +44,32 @@ import { ParsedScenario, AirTableProfile } from '../../../../core/models/scenari
         </mat-form-field>
 
         <div class="slider-group filter-field">
-          <label class="slider-label">Industry Loss ($B): {{ lossLo | number:'1.1-1' }} &ndash; {{ lossHi | number:'1.1-1' }}</label>
-          <mat-slider min="0" max="300" step="0.5" [discrete]="true">
-            <input matSliderStartThumb [(ngModel)]="lossLo" (ngModelChange)="emitChange()">
-            <input matSliderEndThumb [(ngModel)]="lossHi" (ngModelChange)="emitChange()">
+          <label class="slider-label">Industry Loss ($B): {{ formatLoss(lossLo) }} &ndash; {{ formatLoss(lossHi) }}</label>
+          <mat-slider [min]="0" [max]="sliderMax" step="1" [discrete]="true" [displayWith]="displayLoss">
+            <input matSliderStartThumb [(ngModel)]="lossLo" (ngModelChange)="onLossChange()">
+            <input matSliderEndThumb [(ngModel)]="lossHi" (ngModelChange)="onLossChange()">
           </mat-slider>
         </div>
       </div>
+
+      @if (availableRegions.length > 0) {
+        <div class="region-section">
+          <label class="region-label">Available Regions for {{ peril }}</label>
+          <mat-chip-listbox [(ngModel)]="selectedRegion" (ngModelChange)="onRegionChange()">
+            <mat-chip-option value="">All Regions</mat-chip-option>
+            @for (r of availableRegions; track r) {
+              <mat-chip-option [value]="r">{{ r }}</mat-chip-option>
+            }
+          </mat-chip-listbox>
+          @if (regionModels.length > 0) {
+            <div class="model-labels">
+              @for (m of regionModels; track m.model_no) {
+                <span class="model-chip">{{ m.label }}</span>
+              }
+            </div>
+          }
+        </div>
+      }
 
       <mat-radio-group [(ngModel)]="filterMode" (ngModelChange)="emitChange()" class="filter-mode-group">
         <mat-radio-button value="Industry Loss">Industry Loss</mat-radio-button>
@@ -63,13 +84,15 @@ import { ParsedScenario, AirTableProfile } from '../../../../core/models/scenari
             <input matInput [(ngModel)]="eventKeyword" (ngModelChange)="emitChange()">
           </mat-form-field>
 
-          <div class="slider-group filter-field">
-            <label class="slider-label">Magnitude: {{ magLo | number:'1.1-1' }} &ndash; {{ magHi | number:'1.1-1' }}</label>
-            <mat-slider min="0" max="12" step="0.1" [discrete]="true">
-              <input matSliderStartThumb [(ngModel)]="magLo" (ngModelChange)="emitChange()">
-              <input matSliderEndThumb [(ngModel)]="magHi" (ngModelChange)="emitChange()">
-            </mat-slider>
-          </div>
+          @if (peril === 'EQ') {
+            <div class="slider-group filter-field">
+              <label class="slider-label">Magnitude: {{ magLo | number:'1.1-1' }} &ndash; {{ magHi | number:'1.1-1' }}</label>
+              <mat-slider min="0" max="12" step="0.1" [discrete]="true" [displayWith]="displayMag">
+                <input matSliderStartThumb [(ngModel)]="magLo" (ngModelChange)="emitChange()">
+                <input matSliderEndThumb [(ngModel)]="magHi" (ngModelChange)="emitChange()">
+              </mat-slider>
+            </div>
+          }
         </div>
 
         <mat-checkbox [(ngModel)]="useAir" (ngModelChange)="emitChange()">
@@ -116,16 +139,26 @@ import { ParsedScenario, AirTableProfile } from '../../../../core/models/scenari
     .slider-label { font-size: 0.78rem; color: #666; margin-bottom: 4px; }
     .filter-mode-group { display: flex; gap: 16px; margin: 12px 0; }
     .air-table-field { width: 100%; margin-top: 8px; }
-    .search-btn { width: 100%; margin: 16px 0; height: 48px; font-size: 1rem; }
+    .search-btn { width: 100%; margin: 16px 0 32px; height: 48px; font-size: 1rem; }
+    .region-section { margin: 12px 0; }
+    .region-label { font-size: 0.78rem; color: #666; display: block; margin-bottom: 6px; }
+    .model-labels { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .model-chip {
+      font-size: 0.7rem; background: #EBF0FE; color: #235CF4;
+      padding: 2px 10px; border-radius: 12px; font-weight: 500;
+    }
   `],
 })
-export class RefineFiltersComponent implements OnChanges {
+export class RefineFiltersComponent implements OnChanges, OnInit {
   readonly dbConfig = inject(DatabaseConfigService);
+  private readonly api = inject(ScenarioApiService);
 
   @Input() parsed!: ParsedScenario;
   @Input() airTables: AirTableProfile[] = [];
   @Input() airDescriptions: string[] = [];
   @Input() recommendedTable: string | null = null;
+
+  @Input() autoExpand = false;
 
   @Output() filtersChanged = new EventEmitter<{
     peril: string; zone: string; lossLo: number; lossHi: number;
@@ -145,6 +178,21 @@ export class RefineFiltersComponent implements OnChanges {
   selectedDescription = '';
   magLo = 0;
   magHi = 12;
+  sliderMax = 50;
+
+  modelInfo: ModelInfoResponse = {};
+  availableRegions: string[] = [];
+  selectedRegion = '';
+  regionModels: ModelEntry[] = [];
+
+  ngOnInit(): void {
+    this.api.getModelInfo().subscribe({
+      next: (info) => {
+        this.modelInfo = info;
+        this.updateRegions();
+      },
+    });
+  }
 
   ngOnChanges(): void {
     if (this.parsed) {
@@ -155,9 +203,55 @@ export class RefineFiltersComponent implements OnChanges {
       if (this.parsed.event_keyword) this.eventKeyword = this.parsed.event_keyword;
       if (this.parsed.mag_lo !== null) this.magLo = this.parsed.mag_lo;
       if (this.parsed.mag_hi !== null) this.magHi = this.parsed.mag_hi;
+      this.updateSliderMax();
+      this.updateRegions();
     }
     if (this.recommendedTable && !this.selectedAirTable) {
       this.selectedAirTable = this.recommendedTable;
+    }
+    this.emitChange();
+  }
+
+  onLossChange(): void {
+    this.updateSliderMax();
+    this.emitChange();
+  }
+
+  private updateSliderMax(): void {
+    const ceil = Math.ceil(this.lossHi / 10) * 10;
+    this.sliderMax = Math.max(50, ceil + 10);
+  }
+
+  onPerilChange(): void {
+    this.selectedRegion = '';
+    this.updateRegions();
+    this.emitChange();
+  }
+
+  onRegionChange(): void {
+    this.updateRegionModels();
+    this.emitChange();
+  }
+
+  private updateRegions(): void {
+    if (this.peril && this.peril !== 'All' && this.modelInfo[this.peril]) {
+      this.availableRegions = Object.keys(this.modelInfo[this.peril]);
+    } else {
+      this.availableRegions = [];
+    }
+    this.updateRegionModels();
+  }
+
+  private updateRegionModels(): void {
+    if (!this.peril || this.peril === 'All' || !this.modelInfo[this.peril]) {
+      this.regionModels = [];
+      return;
+    }
+    const perilData = this.modelInfo[this.peril];
+    if (this.selectedRegion && perilData[this.selectedRegion]) {
+      this.regionModels = perilData[this.selectedRegion];
+    } else {
+      this.regionModels = Object.values(perilData).flat();
     }
   }
 
@@ -171,6 +265,19 @@ export class RefineFiltersComponent implements OnChanges {
     }
     this.emitChange();
   }
+
+  formatLoss(value: number): string {
+    if (value >= 1) return `$${value}B`;
+    return `$${(value * 1000).toFixed(0)}M`;
+  }
+
+  displayLoss = (value: number): string => {
+    return `${value}`;
+  };
+
+  displayMag = (value: number): string => {
+    return value.toFixed(1);
+  };
 
   emitChange(): void {
     const table = this.airTables.find(t => t.label === this.selectedAirTable);

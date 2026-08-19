@@ -5,12 +5,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { CandidateEvent } from '../../../../core/models/event.models';
 import { DESIGN_TOKENS } from '../../../../shared/theme/design-tokens';
 
 @Component({
   selector: 'app-scenario-assignment',
-  imports: [SlicePipe, FormsModule, MatFormFieldModule, MatSelectModule, MatInputModule, MatButtonModule],
+  imports: [SlicePipe, FormsModule, MatFormFieldModule, MatSelectModule, MatInputModule, MatButtonModule, MatIconModule],
   template: `
     <div class="section-title">Assign Scenarios <span class="subtitle">Select Low, Medium, and High severity events</span></div>
 
@@ -37,9 +38,14 @@ import { DESIGN_TOKENS } from '../../../../shared/theme/design-tokens';
       }
     </div>
 
-    <button mat-flat-button color="primary" class="analyze-btn" (click)="onRun()">
-      Analyze Portfolio Impact
-    </button>
+    <div class="action-row">
+      <button mat-flat-button color="primary" class="analyze-btn" (click)="onRun()">
+        Analyze Portfolio Impact
+      </button>
+      <button mat-stroked-button color="primary" class="save-btn" (click)="onSave()">
+        <mat-icon>bookmark_border</mat-icon> Save Scenario
+      </button>
+    </div>
   `,
   styles: [`
     .section-title {
@@ -54,12 +60,15 @@ import { DESIGN_TOKENS } from '../../../../shared/theme/design-tokens';
     }
     .scenario-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 12px; }
     .scenario-field { width: 100%; }
-    .analyze-btn { width: 100%; margin: 16px 0; height: 48px; font-size: 1rem; }
+    .action-row { display: flex; gap: 12px; margin: 16px 0; }
+    .analyze-btn { flex: 1; height: 48px; font-size: 1rem; }
+    .save-btn { height: 48px; font-size: 0.9rem; }
   `],
 })
 export class ScenarioAssignmentComponent implements OnChanges {
   @Input() events: CandidateEvent[] = [];
   @Output() runAnalysis = new EventEmitter<{ low: number; med: number; high: number }>();
+  @Output() saveScenario = new EventEmitter<{ low: number; med: number; high: number }>();
 
   scenarios = [
     { key: 'low', label: 'LOW', color: DESIGN_TOKENS.scenarioColors['Low'], selectedId: 0, manualId: 0 },
@@ -78,6 +87,14 @@ export class ScenarioAssignmentComponent implements OnChanges {
 
   onRun(): void {
     this.runAnalysis.emit({
+      low: this.scenarios[0].selectedId || this.scenarios[0].manualId,
+      med: this.scenarios[1].selectedId || this.scenarios[1].manualId,
+      high: this.scenarios[2].selectedId || this.scenarios[2].manualId,
+    });
+  }
+
+  onSave(): void {
+    this.saveScenario.emit({
       low: this.scenarios[0].selectedId || this.scenarios[0].manualId,
       med: this.scenarios[1].selectedId || this.scenarios[1].manualId,
       high: this.scenarios[2].selectedId || this.scenarios[2].manualId,

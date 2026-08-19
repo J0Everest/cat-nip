@@ -63,3 +63,22 @@ export interface ConfigResponse {
   air_events_db: string;
   design_tokens: Record<string, unknown>;
 }
+
+export interface SavedScenario {
+  id: number;
+  name: string;
+  created_at: string;
+  updated_at: string;
+  query_text: string;
+  peril: string;
+  zone: string;
+  loss_lo: number;
+  loss_hi: number;
+  filter_mode: string;
+  event_keyword: string;
+  low_event_id: number;
+  med_event_id: number;
+  high_event_id: number;
+  database: string;
+  candidate_event_ids: number[];
+}

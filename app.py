@@ -1,14 +1,16 @@
 import os
 import streamlit as st
 from _db import init_db_state, next_quarter
+from theme import inject_global_css
 
 st.set_page_config(
-    page_title="Everest Cat Tools",
+    page_title="CAT-NIP",
+    page_icon="🐾",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# shared SQL settings across all pages
+inject_global_css()
 init_db_state()
 
 with st.sidebar:
@@ -19,10 +21,10 @@ with st.sidebar:
     )
     if os.path.exists(_logo_path):
         with open(_logo_path, "rb") as _f:
-            st.image(_f.read(), width=180)
+            st.image(_f.read(), width=160)
 
-    st.caption("Everest Cat Tools")
-    st.markdown("<div style='height:45vh'></div>", unsafe_allow_html=True)
+    st.caption("CAT-NIP")
+    st.markdown("<div style='height:30vh'></div>", unsafe_allow_html=True)
     st.markdown("---")
     st.markdown("##### Connection")
     st.text_input("SQL Server", value=st.session_state.sql_server, disabled=True)
@@ -38,7 +40,8 @@ with st.sidebar:
 
 pg = st.navigation(
     [
-        st.Page("views/2_Event_Response_v2.py", title="Event Response", icon="📋"),
+        st.Page("views/1_Scenario_Builder.py", title="Scenario Builder", icon="🎯", default=True),
+        st.Page("views/2_Event_Response_v2.py", title="Classic View", icon="📋"),
     ],
     position="sidebar",
 )

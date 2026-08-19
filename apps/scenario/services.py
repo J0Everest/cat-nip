@@ -38,6 +38,12 @@ def parse_scenario_query(text: str) -> dict:
     else:
         best_zone = None
         best_priority = -1
+        for i in range(len(tokens) - 1):
+            bigram = f"{tokens[i]} {tokens[i+1]}"
+            if bigram in ZONE_TOKEN_MAP:
+                best_zone = ZONE_TOKEN_MAP[bigram]
+                best_priority = 3
+                break
         for t in tokens:
             if t not in ZONE_TOKEN_MAP:
                 continue
@@ -53,18 +59,23 @@ def parse_scenario_query(text: str) -> dict:
         if best_zone:
             out["zone"] = best_zone
 
-    m_rng = re.search(
-        r"(\d+(?:\.\d+)?)\s*(?:to|\-)\s*(\d+(?:\.\d+)?)(?:\s*(?:b|bn|billion))?\s*(?:industry\s*loss)?",
-        q,
-    )
-    if m_rng:
-        out["loss_lo"] = float(m_rng.group(1))
-        out["loss_hi"] = float(m_rng.group(2))
-
     m_mag = re.search(r"(?:magnitude|mag)\s*(\d+(?:\.\d+)?)\s*(?:to|\-)\s*(\d+(?:\.\d+)?)", q)
     if m_mag:
         out["mag_lo"] = float(m_mag.group(1))
         out["mag_hi"] = float(m_mag.group(2))
+
+    m_rng = re.search(
+        r"(\d+(?:\.\d+)?)\s*(?:to|\-)\s*(\d+(?:\.\d+)?)\s*(?:b|bn|billion)",
+        q,
+    )
+    if not m_rng:
+        m_rng = re.search(
+            r"(?:industry\s*loss|loss)\s*(?:of\s+)?(\d+(?:\.\d+)?)\s*(?:to|\-)\s*(\d+(?:\.\d+)?)",
+            q,
+        )
+    if m_rng:
+        out["loss_lo"] = float(m_rng.group(1))
+        out["loss_hi"] = float(m_rng.group(2))
 
     m_model = re.search(r"(?:model|m)\s*#?\s*(\d{1,4})", q)
     if m_model:
@@ -258,6 +269,61 @@ def match_table_by_model(labels: list[str], model_no: int | None):
             if re.search(pattern, lbl):
                 return labels[i]
     return None
+
+
+def best_fallback_table(profiles: list[dict], zone_filter: str) -> str | None:
+    """Pick the best AIR table using catalog geography when DB inference fails."""
+    if not profiles:
+        return None
+
+    geo_tokens: set[str] = set()
+    zf_lower = (zone_filter or "").lower().strip()
+    for token, zone_val in ZONE_TOKEN_MAP.items():
+        if zone_val.lower() == zf_lower:
+            geo_tokens.add(token)
+    for word in zf_lower.split():
+        if len(word) >= 2:
+            geo_tokens.add(word)
+
+    best_label = None
+    best_score = -999
+
+    for p in profiles:
+        label = f"{p['schema']}.{p['table']}"
+        m = re.search(r"(?:Tbl)?Model[_]?(\d+)", p["table"], re.IGNORECASE)
+        if not m:
+            if best_score < 0:
+                best_label = label
+                best_score = 0
+            continue
+        model_no = int(m.group(1))
+        entry = MODEL_CATALOG.get(model_no)
+        if not entry:
+            continue
+
+        score = 0
+        model_label = entry["label"].lower()
+        model_region = entry["region"].lower()
+
+        for gt in geo_tokens:
+            if gt in model_region:
+                score += 3
+            if gt in model_label:
+                score += 3
+
+        if "/" in entry["region"]:
+            score += 1
+
+        for place in ["hawaii", "alaska", "guam", "india", "japan", "china",
+                       "australia", "korea"]:
+            if place in model_label and place not in geo_tokens:
+                score -= 5
+
+        if score > best_score:
+            best_score = score
+            best_label = label
+
+    return best_label
 
 
 def extract_query_keywords(text: str) -> list[str]:

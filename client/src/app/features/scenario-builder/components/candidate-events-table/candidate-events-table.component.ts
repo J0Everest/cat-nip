@@ -71,8 +71,11 @@ import { CandidateEvent } from '../../../../core/models/event.models';
       border-bottom: 2px solid #235CF4; padding-bottom: 6px; margin: 24px 0 12px;
     }
     .event-count { font-size: 0.82rem; color: #A4ABC8; margin-bottom: 8px; }
-    .events-table { width: 100%; }
+    .events-table { width: 100%; border-radius: 8px; overflow: hidden; }
     .selected-row { background: #EBF0FE !important; }
+    tr.mat-mdc-row:nth-child(even) { background: rgba(0,0,0,0.02); }
+    tr.mat-mdc-row:hover { background: rgba(35,92,244,0.06); }
+    tr.mat-mdc-row.selected-row:hover { background: #DDE5FD !important; }
     mat-paginator { margin-top: 8px; }
   `],
 })

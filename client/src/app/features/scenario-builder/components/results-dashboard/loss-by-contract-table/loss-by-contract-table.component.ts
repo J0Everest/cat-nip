@@ -9,7 +9,7 @@ import { CopyButtonComponent } from '../../../../../shared/components/copy-butto
   selector: 'app-loss-by-contract-table',
   imports: [DecimalPipe, PercentPipe, MatTableModule, MatSortModule, CopyButtonComponent],
   template: `
-    <app-copy-button label="Copy Loss by Contract" [data]="tsvData" />
+    <app-copy-button label="Copy Loss by Contract" [data]="tsvData" downloadFilename="loss-by-contract.csv" />
 
     <table mat-table [dataSource]="contracts" matSort class="contract-table">
       <ng-container matColumnDef="layerkey">

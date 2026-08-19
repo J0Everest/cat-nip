@@ -2,6 +2,8 @@ from django.urls import path
 from apps.scenario.views import (
     ParseQueryView, AirTablesView, AirDescriptionsView,
     SearchEventsView, AnalyzeView, PreviewSqlView,
+    SavedScenarioListCreateView, SavedScenarioDetailView,
+    ModelInfoView,
 )
 
 urlpatterns = [
@@ -11,4 +13,7 @@ urlpatterns = [
     path("search-events/", SearchEventsView.as_view()),
     path("analyze/", AnalyzeView.as_view()),
     path("preview-sql/", PreviewSqlView.as_view()),
+    path("saved/", SavedScenarioListCreateView.as_view()),
+    path("saved/<int:pk>/", SavedScenarioDetailView.as_view()),
+    path("model-info/", ModelInfoView.as_view()),
 ]

@@ -1,8 +1,8 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { ParsedScenario, AirTablesResponse, AirDescriptionsResponse } from '../models/scenario.models';
-import { SearchEventsResponse, AnalyzeResponse, ConfigResponse } from '../models/event.models';
+import { ParsedScenario, AirTablesResponse, AirDescriptionsResponse, ModelInfoResponse } from '../models/scenario.models';
+import { SearchEventsResponse, AnalyzeResponse, ConfigResponse, SavedScenario } from '../models/event.models';
 
 @Injectable({ providedIn: 'root' })
 export class ScenarioApiService {
@@ -70,5 +70,21 @@ export class ScenarioApiService {
 
   previewSql(body: Record<string, unknown>): Observable<{ sql: string }> {
     return this.http.post<{ sql: string }>(`${this.base}/scenario/preview-sql/`, body);
+  }
+
+  listSavedScenarios(): Observable<SavedScenario[]> {
+    return this.http.get<SavedScenario[]>(`${this.base}/scenario/saved/`);
+  }
+
+  saveScenario(scenario: Omit<SavedScenario, 'id' | 'created_at' | 'updated_at'>): Observable<SavedScenario> {
+    return this.http.post<SavedScenario>(`${this.base}/scenario/saved/`, scenario);
+  }
+
+  deleteSavedScenario(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/scenario/saved/${id}/`);
+  }
+
+  getModelInfo(): Observable<ModelInfoResponse> {
+    return this.http.get<ModelInfoResponse>(`${this.base}/scenario/model-info/`);
   }
 }

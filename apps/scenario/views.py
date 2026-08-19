@@ -2,18 +2,23 @@ import pandas as pd
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from django.conf import settings
 
 from apps.db.connection import run_sql
+from apps.scenario.models import SavedScenario
+from apps.scenario.catalogs import MODEL_CATALOG, _PERIL_TO_MODELS
 from apps.scenario.serializers import (
     ParseQuerySerializer, SearchEventsSerializer,
     AnalyzeSerializer, PreviewSqlSerializer,
+    SavedScenarioSerializer,
 )
 from apps.scenario.services import (
     parse_scenario_query, compute_confidence,
     discover_air_event_tables, prefilter_air_profiles_by_peril,
     infer_model_from_industry, match_table_by_model,
     infer_table_by_keyword_match, fetch_air_event_details,
+    fetch_air_descriptions_for_peril, best_fallback_table,
     fetch_air_descriptions_for_peril,
 )
 from apps.scenario.sql_builders import build_event_search_sql, build_output_sql
@@ -59,6 +64,8 @@ class AirTablesView(APIView):
                 model_hint = infer_model_from_industry(server, database, peril, zone_filter)
                 if model_hint:
                     recommended = match_table_by_model(labels, model_hint)
+            if not recommended and labels:
+                recommended = best_fallback_table(profiles, zone_filter)
             if not recommended and labels:
                 recommended = labels[0]
 
@@ -285,3 +292,32 @@ class PreviewSqlView(APIView):
                 database, d["low_event_id"], d["med_event_id"], d["high_event_id"],
             )
         return Response({"sql": sql})
+
+
+class SavedScenarioListCreateView(ListCreateAPIView):
+    queryset = SavedScenario.objects.all()
+    serializer_class = SavedScenarioSerializer
+
+
+class SavedScenarioDetailView(RetrieveUpdateDestroyAPIView):
+    queryset = SavedScenario.objects.all()
+    serializer_class = SavedScenarioSerializer
+
+
+class ModelInfoView(APIView):
+    def get(self, request):
+        result: dict[str, dict[str, list[dict]]] = {}
+        for peril_name, model_nos in _PERIL_TO_MODELS.items():
+            regions: dict[str, list[dict]] = {}
+            for mno in model_nos:
+                entry = MODEL_CATALOG.get(mno)
+                if not entry:
+                    continue
+                region = entry["region"]
+                regions.setdefault(region, []).append({
+                    "model_no": mno,
+                    "label": entry["label"],
+                })
+            if regions:
+                result[peril_name] = regions
+        return Response(result)

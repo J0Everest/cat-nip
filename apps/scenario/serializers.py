@@ -1,5 +1,14 @@
 from rest_framework import serializers
 
+from apps.scenario.models import SavedScenario
+
+
+class SavedScenarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SavedScenario
+        fields = "__all__"
+        read_only_fields = ["id", "created_at", "updated_at"]
+
 
 class ParseQuerySerializer(serializers.Serializer):
     query = serializers.CharField(max_length=2000)
