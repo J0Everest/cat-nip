@@ -113,6 +113,9 @@ export class ScenarioBuilderComponent implements OnInit, OnDestroy {
 
   readonly errorMsg = signal('');
 
+  private lastAirTablesKey = '';
+  private lastDescriptionsKey = '';
+
   readonly currentStep = computed(() => {
     if (this.analyzeResult()) return 4;
     if (this.selectedEvents().length > 0) return 3;
@@ -131,6 +134,8 @@ export class ScenarioBuilderComponent implements OnInit, OnDestroy {
     this.errorMsg.set('');
     this.candidates.set([]);
     this.analyzeResult.set(null);
+    this.lastAirTablesKey = '';
+    this.lastDescriptionsKey = '';
 
     this.api.parseQuery(query).subscribe({
       next: (parsed) => {
@@ -149,6 +154,9 @@ export class ScenarioBuilderComponent implements OnInit, OnDestroy {
   }
 
   private loadAirTables(peril: string, zone: string, scenarioText: string): void {
+    const key = `${peril}|${zone}`;
+    if (key === this.lastAirTablesKey) return;
+    this.lastAirTablesKey = key;
     this.api.getAirTables(peril, scenarioText, zone).subscribe({
       next: (res) => {
         this.airTables.set(res.tables);
@@ -163,9 +171,13 @@ export class ScenarioBuilderComponent implements OnInit, OnDestroy {
       this.loadAirTables(state.peril, state.zone, this.rawQuery());
     }
     if (state.useAir && state.airTableSchema && state.airTableName) {
-      this.api.getAirDescriptions(state.peril, state.zone, state.airTableSchema, state.airTableName).subscribe({
-        next: (res) => this.airDescriptions.set(res.descriptions),
-      });
+      const descKey = `${state.peril}|${state.zone}|${state.airTableSchema}|${state.airTableName}`;
+      if (descKey !== this.lastDescriptionsKey) {
+        this.lastDescriptionsKey = descKey;
+        this.api.getAirDescriptions(state.peril, state.zone, state.airTableSchema, state.airTableName).subscribe({
+          next: (res) => this.airDescriptions.set(res.descriptions),
+        });
+      }
     }
   }
 
