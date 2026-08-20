@@ -326,6 +326,30 @@ def best_fallback_table(profiles: list[dict], zone_filter: str) -> str | None:
     return best_label
 
 
+def get_distinct_zones(server: str, database: str, peril: str) -> list[str]:
+    cache_key = f"zones:{server}:{database}:{peril}"
+    cached = cache.get(cache_key)
+    if cached is not None:
+        return cached
+    peril_pred = industry_peril_clause(peril)
+    where = f"WHERE 1=1 {peril_pred}" if peril_pred else ""
+    q = f"""
+SELECT DISTINCT [Zone]
+FROM [Industry].[dbo].[Industry_Unadjusted_V21_ZonePercent]
+{where}
+ORDER BY [Zone];
+"""
+    try:
+        df = run_sql(server, database, q)
+    except Exception:
+        return []
+    if df is None or df.empty:
+        return []
+    result = [str(v) for v in df["Zone"].dropna().tolist()]
+    cache.set(cache_key, result, 600)
+    return result
+
+
 def extract_query_keywords(text: str) -> list[str]:
     q = (text or "").lower()
     toks = re.findall(r"[a-z0-9]+", q)

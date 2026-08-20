@@ -11,6 +11,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { DatabaseConfigService } from '../../../../core/services/database-config.service';
 import { ScenarioApiService } from '../../../../core/services/scenario-api.service';
 import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '../../../../core/models/scenario.models';
@@ -20,7 +21,7 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '
   imports: [
     DecimalPipe, FormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatSliderModule, MatCheckboxModule, MatRadioModule,
-    MatButtonModule, MatChipsModule, MatProgressSpinnerModule,
+    MatButtonModule, MatChipsModule, MatProgressSpinnerModule, MatAutocompleteModule,
   ],
   template: `
     <mat-expansion-panel [expanded]="autoExpand" class="refine-panel">
@@ -39,8 +40,15 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="filter-field">
-          <mat-label>Zone (partial match)</mat-label>
-          <input matInput [(ngModel)]="zone" (ngModelChange)="emitChange()" placeholder="e.g. FL, Zone 03, Caribbean">
+          <mat-label>Zone</mat-label>
+          <input matInput [(ngModel)]="zone" (ngModelChange)="onZoneInput()"
+                 [matAutocomplete]="zoneAuto"
+                 placeholder="Type to search zones...">
+          <mat-autocomplete #zoneAuto (optionSelected)="zone = $event.option.value; emitChange()">
+            @for (z of filteredZones; track z) {
+              <mat-option [value]="z">{{ z }}</mat-option>
+            }
+          </mat-autocomplete>
         </mat-form-field>
 
         <div class="slider-group filter-field">
@@ -84,9 +92,9 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '
             <input matInput [(ngModel)]="eventKeyword" (ngModelChange)="emitChange()">
           </mat-form-field>
 
-          @if (peril === 'EQ') {
+          @if (selectedProfile?.mag_col) {
             <div class="slider-group filter-field">
-              <label class="slider-label">Magnitude: {{ magLo | number:'1.1-1' }} &ndash; {{ magHi | number:'1.1-1' }}</label>
+              <label class="slider-label">{{ peril === 'EQ' ? 'Magnitude' : 'Intensity' }}: {{ magLo | number:'1.1-1' }} &ndash; {{ magHi | number:'1.1-1' }}</label>
               <mat-slider min="0" max="12" step="0.1" [discrete]="true" [displayWith]="displayMag">
                 <input matSliderStartThumb [(ngModel)]="magLo" (ngModelChange)="emitChange()">
                 <input matSliderEndThumb [(ngModel)]="magHi" (ngModelChange)="emitChange()">
@@ -113,15 +121,17 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '
           </mat-form-field>
 
           @if (airDescriptions.length > 0) {
-            <mat-form-field appearance="outline" class="air-table-field">
-              <mat-label>Event description</mat-label>
-              <mat-select [(ngModel)]="selectedDescription" (ngModelChange)="onDescriptionChange()">
-                <mat-option value="">(any)</mat-option>
-                @for (d of airDescriptions; track d) {
-                  <mat-option [value]="d">{{ d }}</mat-option>
+            <div class="desc-section">
+              <mat-form-field appearance="outline" class="air-table-field">
+                <mat-label>Filter descriptions ({{ airDescriptions.length }} available)</mat-label>
+                <input matInput [(ngModel)]="descSearch" placeholder="Type to filter...">
+              </mat-form-field>
+              <div class="desc-chips">
+                @for (d of filteredDescriptions; track d) {
+                  <span class="desc-chip" [class.active]="eventKeyword === d" (click)="onDescChipClick(d)">{{ d }}</span>
                 }
-              </mat-select>
-            </mat-form-field>
+              </div>
+            </div>
           }
         }
       }
@@ -147,6 +157,18 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '
       font-size: 0.7rem; background: #EBF0FE; color: #235CF4;
       padding: 2px 10px; border-radius: 12px; font-weight: 500;
     }
+    .desc-section { margin-top: 4px; }
+    .desc-chips {
+      display: flex; flex-wrap: wrap; gap: 6px;
+      margin: 8px 0 4px; max-height: 120px; overflow-y: auto;
+    }
+    .desc-chip {
+      font-size: 0.72rem; background: #EBF0FE; color: #235CF4; border-radius: 12px;
+      padding: 3px 10px; cursor: pointer; transition: background 0.15s;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;
+    }
+    .desc-chip:hover { background: #C7D5FC; }
+    .desc-chip.active { background: #235CF4; color: #fff; }
   `],
 })
 export class RefineFiltersComponent implements OnChanges, OnInit {
@@ -157,7 +179,6 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
   @Input() airTables: AirTableProfile[] = [];
   @Input() airDescriptions: string[] = [];
   @Input() recommendedTable: string | null = null;
-
   @Input() autoExpand = false;
 
   @Output() filtersChanged = new EventEmitter<{
@@ -175,15 +196,30 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
   eventKeyword = '';
   useAir = true;
   selectedAirTable = '';
-  selectedDescription = '';
   magLo = 0;
   magHi = 12;
   sliderMax = 50;
+  descSearch = '';
+
+  zones: string[] = [];
+  filteredZones: string[] = [];
 
   modelInfo: ModelInfoResponse = {};
   availableRegions: string[] = [];
   selectedRegion = '';
   regionModels: ModelEntry[] = [];
+
+  get selectedProfile(): AirTableProfile | null {
+    return this.airTables.find(t => t.label === this.selectedAirTable) ?? this.airTables[0] ?? null;
+  }
+
+  get filteredDescriptions(): string[] {
+    const q = this.descSearch.toLowerCase();
+    return (q
+      ? this.airDescriptions.filter(d => d.toLowerCase().includes(q))
+      : this.airDescriptions
+    ).slice(0, 20);
+  }
 
   ngOnInit(): void {
     this.api.getModelInfo().subscribe({
@@ -205,6 +241,8 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
       if (this.parsed.mag_hi !== null) this.magHi = this.parsed.mag_hi;
       this.updateSliderMax();
       this.updateRegions();
+      this.loadZones();
+      this.filterZones(this.zone);
     }
     if (this.recommendedTable && !this.selectedAirTable) {
       this.selectedAirTable = this.recommendedTable;
@@ -225,7 +263,30 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
   onPerilChange(): void {
     this.selectedRegion = '';
     this.updateRegions();
+    this.loadZones();
     this.emitChange();
+  }
+
+  private loadZones(): void {
+    this.api.getZones(this.peril).subscribe({
+      next: (r) => {
+        this.zones = r.zones;
+        this.filterZones(this.zone);
+      },
+    });
+  }
+
+  onZoneInput(): void {
+    this.filterZones(this.zone);
+    this.emitChange();
+  }
+
+  filterZones(val: string): void {
+    const q = (val || '').toLowerCase();
+    this.filteredZones = (q
+      ? this.zones.filter(z => z.toLowerCase().includes(q))
+      : this.zones
+    ).slice(0, 50);
   }
 
   onRegionChange(): void {
@@ -256,13 +317,12 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
   }
 
   onAirTableChange(): void {
+    this.descSearch = '';
     this.emitChange();
   }
 
-  onDescriptionChange(): void {
-    if (this.selectedDescription) {
-      this.eventKeyword = this.selectedDescription;
-    }
+  onDescChipClick(d: string): void {
+    this.eventKeyword = d;
     this.emitChange();
   }
 

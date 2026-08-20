@@ -25,6 +25,11 @@ export class ScenarioApiService {
     return this.http.post<ParsedScenario>(`${this.base}/scenario/parse/`, { query });
   }
 
+  getZones(peril: string): Observable<{ zones: string[] }> {
+    const params = new HttpParams().set('peril', peril);
+    return this.http.get<{ zones: string[] }>(`${this.base}/scenario/zones/`, { params });
+  }
+
   getAirTables(peril: string, scenarioText: string, zoneFilter: string): Observable<AirTablesResponse> {
     let params = new HttpParams()
       .set('peril', peril)

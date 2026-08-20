@@ -31,7 +31,7 @@ import { FullOutputDetailComponent } from './full-output-detail/full-output-deta
     <div class="section-title">Scenario Comparison</div>
     <app-scenario-comparison-chart [summaries]="result.summary" />
 
-    <div class="section-title">Loss by Contract <span class="subtitle">Low / Med / High</span></div>
+    <div class="section-title">Loss by Contract <span class="subtitle">Gross &amp; Net of Logan — Low / Med / High</span></div>
     <app-loss-by-contract-table [contracts]="result.contracts" />
 
     <mat-expansion-panel>

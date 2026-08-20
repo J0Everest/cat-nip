@@ -83,7 +83,7 @@ class CatalogTest(TestCase):
         self.assertIn("All", PERIL_OPTIONS)
         self.assertIn("EQ", PERIL_OPTIONS)
         self.assertIn("TC", PERIL_OPTIONS)
-        self.assertIn("Flood", PERIL_OPTIONS)
+        self.assertNotIn("Flood", PERIL_OPTIONS)
 
     def test_peril_db_codes_tc(self):
         codes = PERIL_DB_CODES["TC"]

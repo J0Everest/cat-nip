@@ -4,7 +4,7 @@ from apps.scenario.services import industry_peril_clause
 def build_event_search_sql(db, zone_filter, ind_lo, ind_hi, peril, filter_mode="Industry Loss", event_keyword=""):
     lo = int(ind_lo * 1_000_000_000)
     hi = int(ind_hi * 1_000_000_000)
-    zone_like = (zone_filter.strip() or "Zone").split()[0].replace("'", "''")
+    zone_like = (zone_filter.strip() or "Zone").replace("'", "''")
     event_keyword = (event_keyword or "").strip().replace("'", "''")
     peril_clause = f"  {industry_peril_clause(peril)}" if peril and peril != "All" else ""
     use_industry = filter_mode in ("Industry Loss", "Both")

@@ -3,11 +3,12 @@ from apps.scenario.views import (
     ParseQueryView, AirTablesView, AirDescriptionsView,
     SearchEventsView, AnalyzeView, PreviewSqlView,
     SavedScenarioListCreateView, SavedScenarioDetailView,
-    ModelInfoView,
+    ModelInfoView, ZonesView,
 )
 
 urlpatterns = [
     path("parse/", ParseQueryView.as_view()),
+    path("zones/", ZonesView.as_view()),
     path("air-tables/", AirTablesView.as_view()),
     path("air-descriptions/", AirDescriptionsView.as_view()),
     path("search-events/", SearchEventsView.as_view()),

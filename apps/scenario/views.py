@@ -19,7 +19,7 @@ from apps.scenario.services import (
     infer_model_from_industry, match_table_by_model,
     infer_table_by_keyword_match, fetch_air_event_details,
     fetch_air_descriptions_for_peril, best_fallback_table,
-    fetch_air_descriptions_for_peril,
+    fetch_air_descriptions_for_peril, get_distinct_zones,
 )
 from apps.scenario.sql_builders import build_event_search_sql, build_output_sql
 
@@ -199,6 +199,7 @@ class AnalyzeView(APIView):
                 contracts=("Contract #", "nunique"),
                 industry_b=("Industry Loss ($B)", "max"),
                 gross_m=("Gross Loss $M", "sum"),
+                net_m=("Net Loss $M", "sum"),
             )
             .reset_index()
         )
@@ -214,6 +215,7 @@ class AnalyzeView(APIView):
             {
                 "scenario": row["Scenario"],
                 "gross_loss_m": round(float(row["gross_m"]), 4),
+                "net_loss_m": round(float(row["net_m"]), 4),
                 "contracts": int(row["contracts"]),
                 "industry_loss_b": float(row["industry_b"]),
                 "market_share_pct": round(float(row["market_share_pct"]), 4),
@@ -221,7 +223,7 @@ class AnalyzeView(APIView):
             for _, row in summary_df.iterrows()
         ]
 
-        pivot = df.pivot_table(
+        gross_pivot = df.pivot_table(
             index=["layerkey", "Department", "Company", "SubType", "Contract #",
                    "Terms", "100% Limit ($)", "ROL", "Share"],
             columns="Scenario",
@@ -229,10 +231,23 @@ class AnalyzeView(APIView):
             aggfunc="sum",
             fill_value=0.0,
         ).reset_index()
-
         for sc in ["Low", "Med", "High"]:
-            if sc not in pivot.columns:
-                pivot[sc] = 0.0
+            if sc not in gross_pivot.columns:
+                gross_pivot[sc] = 0.0
+
+        net_pivot = df.pivot_table(
+            index=["layerkey"],
+            columns="Scenario",
+            values="Net Loss $M",
+            aggfunc="sum",
+            fill_value=0.0,
+        ).reset_index()
+        for sc in ["Low", "Med", "High"]:
+            if sc not in net_pivot.columns:
+                net_pivot[sc] = 0.0
+        net_pivot = net_pivot.rename(columns={"Low": "Net_Low", "Med": "Net_Med", "High": "Net_High"})
+
+        pivot = gross_pivot.merge(net_pivot[["layerkey", "Net_Low", "Net_Med", "Net_High"]], on="layerkey", how="left")
 
         contracts = [
             {
@@ -248,6 +263,9 @@ class AnalyzeView(APIView):
                 "low_gross_m": round(float(row.get("Low", 0)), 4),
                 "med_gross_m": round(float(row.get("Med", 0)), 4),
                 "high_gross_m": round(float(row.get("High", 0)), 4),
+                "low_net_m": round(float(row.get("Net_Low", 0)), 4),
+                "med_net_m": round(float(row.get("Net_Med", 0)), 4),
+                "high_net_m": round(float(row.get("Net_High", 0)), 4),
             }
             for _, row in pivot.iterrows()
         ]
@@ -321,3 +339,11 @@ class ModelInfoView(APIView):
             if regions:
                 result[peril_name] = regions
         return Response(result)
+
+
+class ZonesView(APIView):
+    def get(self, request):
+        server, database = _get_db_context(request)
+        peril = request.query_params.get("peril", "All")
+        zones = get_distinct_zones(server, database, peril)
+        return Response({"zones": zones})

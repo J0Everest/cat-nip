@@ -49,16 +49,28 @@ import { CopyButtonComponent } from '../../../../../shared/components/copy-butto
         <td mat-cell *matCellDef="let c">{{ c.share | percent:'1.1-1' }}</td>
       </ng-container>
       <ng-container matColumnDef="low_gross_m">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Low $M</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Low Gross $M</th>
         <td mat-cell *matCellDef="let c">{{ c.low_gross_m | number:'1.4-4' }}</td>
       </ng-container>
       <ng-container matColumnDef="med_gross_m">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Med $M</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Med Gross $M</th>
         <td mat-cell *matCellDef="let c">{{ c.med_gross_m | number:'1.4-4' }}</td>
       </ng-container>
       <ng-container matColumnDef="high_gross_m">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>High $M</th>
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>High Gross $M</th>
         <td mat-cell *matCellDef="let c">{{ c.high_gross_m | number:'1.4-4' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="low_net_m">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Low Net $M</th>
+        <td mat-cell *matCellDef="let c">{{ c.low_net_m | number:'1.4-4' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="med_net_m">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Med Net $M</th>
+        <td mat-cell *matCellDef="let c">{{ c.med_net_m | number:'1.4-4' }}</td>
+      </ng-container>
+      <ng-container matColumnDef="high_net_m">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>High Net $M</th>
+        <td mat-cell *matCellDef="let c">{{ c.high_net_m | number:'1.4-4' }}</td>
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="columns"></tr>
@@ -74,7 +86,9 @@ export class LossByContractTableComponent {
 
   readonly columns = [
     'layerkey', 'department', 'company', 'subtype', 'contract', 'terms',
-    'everest_limit', 'rol', 'share', 'low_gross_m', 'med_gross_m', 'high_gross_m',
+    'everest_limit', 'rol', 'share',
+    'low_gross_m', 'med_gross_m', 'high_gross_m',
+    'low_net_m', 'med_net_m', 'high_net_m',
   ];
 
   get tsvData(): string {

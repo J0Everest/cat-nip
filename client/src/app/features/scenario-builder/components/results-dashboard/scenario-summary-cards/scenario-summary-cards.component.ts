@@ -14,6 +14,7 @@ import { DESIGN_TOKENS } from '../../../../../shared/theme/design-tokens';
           <div class="scenario-label" [style.color]="colorFor(s.scenario)">{{ s.scenario }} Scenario</div>
           <div class="scenario-value">\${{ s.gross_loss_m | number:'1.1-1' }}M</div>
           <div class="scenario-detail">Gross Loss</div>
+          <div class="net-value">\${{ s.net_loss_m | number:'1.1-1' }}M <span class="net-label">Net of Logan</span></div>
           <hr>
           <div class="stats-row">
             <div><strong>{{ s.contracts }}</strong><br><span class="stat-label">Contracts</span></div>
@@ -35,6 +36,8 @@ import { DESIGN_TOKENS } from '../../../../../shared/theme/design-tokens';
     .scenario-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700; margin-bottom: 6px; }
     .scenario-value { font-size: 1.4rem; font-weight: 700; color: #061C49; margin-bottom: 2px; }
     .scenario-detail { font-size: 0.78rem; color: #A4ABC8; }
+    .net-value { font-size: 0.95rem; font-weight: 600; color: #235CF4; margin-top: 6px; }
+    .net-label { font-size: 0.68rem; font-weight: 400; color: #7B83A6; }
     hr { margin: 8px 0; border-color: #E2E8F0; }
     .stats-row { display: flex; justify-content: space-around; font-size: 0.78rem; }
     .stat-label { color: #A4ABC8; }

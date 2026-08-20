@@ -17,6 +17,7 @@ export interface SearchEventsResponse {
 export interface ScenarioSummary {
   scenario: string;
   gross_loss_m: number;
+  net_loss_m: number;
   contracts: number;
   industry_loss_b: number;
   market_share_pct: number;
@@ -35,6 +36,9 @@ export interface ContractLoss {
   low_gross_m: number;
   med_gross_m: number;
   high_gross_m: number;
+  low_net_m: number;
+  med_net_m: number;
+  high_net_m: number;
 }
 
 export interface DetailRow {

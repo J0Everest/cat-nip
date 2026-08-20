@@ -9,6 +9,7 @@ MODEL_CATALOG = {
     15: {"industry_peril": "EQ",   "region": "Caribbean",       "label": "Caribbean Earthquake"},
     18: {"industry_peril": None,   "region": "Asia",            "label": "Japan Flood"},
     19: {"industry_peril": None,   "region": "Canada",          "label": "Canada Flood"},
+    20: {"industry_peril": "ST",   "region": "US/Canada",       "label": "US/Canada Severe Storm"},
     22: {"industry_peril": None,   "region": "US",              "label": "US Severe Thunderstorm"},
     23: {"industry_peril": "TC",   "region": "US",              "label": "Hawaii Hurricane"},
     26: {"industry_peril": None,   "region": "Canada",          "label": "Canada Severe Storm"},
@@ -68,7 +69,7 @@ _PERIL_TO_MODELS = {
     "EQ":              [10, 11, 13, 14, 15, 31, 33, 40, 50, 51, 52, 53, 54, 55, 58, 64, 70, 72, 76, 78],
     "TC":              [23, 27, 30, 60, 61, 68],
     "Winter Storm":    [28, 38, 41, 42],
-    "Severe Storm":    [22, 26, 39, 43, 44, 47, 48],
+    "Severe Storm":    [20, 22, 26, 39, 43, 44, 47, 48],
     "Fire / Wildfire": [5, 6, 37, 66, 79],
     "Flood":           [8, 18, 19, 36, 59, 90, 92, 94, 96, 97, 98, 99],
 }
@@ -208,7 +209,7 @@ STATE_TOKENS = {
 
 AMBIGUOUS_SHORT_TOKENS = {"in", "or", "me", "de", "on", "hi", "id", "ok", "se"}
 
-PERIL_OPTIONS = ["All", "EQ", "TC", "Winter Storm", "Severe Storm", "Fire / Wildfire", "Flood"]
+PERIL_OPTIONS = ["All", "EQ", "TC", "Winter Storm", "Severe Storm", "Fire / Wildfire"]
 
 DESIGN_TOKENS = {
     "everest_blue": "#235CF4",

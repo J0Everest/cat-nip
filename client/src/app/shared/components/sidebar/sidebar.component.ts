@@ -244,7 +244,7 @@ export class SidebarComponent implements OnInit {
         this.databaseInput = 'CatAccum2604';
         this.dbConfig.server.set(this.serverInput);
         this.dbConfig.database.set(this.databaseInput);
-        this.dbConfig.perilOptions.set(['All', 'EQ', 'TC', 'Winter Storm', 'Severe Storm', 'Fire / Wildfire', 'Flood']);
+        this.dbConfig.perilOptions.set(['All', 'EQ', 'TC', 'Winter Storm', 'Severe Storm', 'Fire / Wildfire']);
       },
     });
     this.refreshSavedScenarios();
