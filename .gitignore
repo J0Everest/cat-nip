@@ -10,12 +10,11 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 
-# Large generated outputs — re-run analysis/compile_air_event_descriptions.py to regenerate
-analysis/air_event_descriptions_distinct.csv
+# Analysis outputs — generated artifacts, not source
+analysis/
 
-# Streamlit runtime logs
-streamlit.out.log
-streamlit.err.log
+# Local SQLite database (saved scenarios — each user has their own)
+db.sqlite3
 
 # Node.js
 node_modules/

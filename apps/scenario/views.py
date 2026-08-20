@@ -7,7 +7,7 @@ from django.conf import settings
 
 from apps.db.connection import run_sql
 from apps.scenario.models import SavedScenario
-from apps.scenario.catalogs import MODEL_CATALOG, _PERIL_TO_MODELS
+from apps.scenario.catalogs import _PERIL_TO_MODELS
 from apps.scenario.serializers import (
     ParseQuerySerializer, SearchEventsSerializer,
     AnalyzeSerializer, PreviewSqlSerializer,
@@ -19,7 +19,7 @@ from apps.scenario.services import (
     infer_model_from_industry, match_table_by_model,
     infer_table_by_keyword_match, fetch_air_event_details,
     fetch_air_descriptions_for_peril, best_fallback_table,
-    fetch_air_descriptions_for_peril, get_distinct_zones,
+    get_distinct_zones,
 )
 from apps.scenario.sql_builders import build_event_search_sql, build_output_sql
 
