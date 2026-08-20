@@ -1,40 +1,104 @@
-# Everest Cat Scenario Explorer (SQL-backed)
+# CAT-NIP — Catastrophe Scenario Explorer
 
-This turns your static dashboard into a real web app backed by SQL Server.
+Django REST API + Angular SPA backed by SQL Server.
 
-## 1) Create DB/table/sample data
-Run [sql/schema.sql](sql/schema.sql) in SQL Server Management Studio.
+---
 
-## 2) Configure environment
-Copy `.env.example` to `.env` and set credentials.
+## Prerequisites
 
-### Windows Integrated Security (your setup)
-Use these values in `.env`:
-- `DB_AUTH_MODE=windows`
-- `DB_INTEGRATED_SECURITY=true`
-- `DB_SERVER_CURRENT=ERRSACTDBP1`
-- `DB_CATACCUM_DATABASE=CatAccum2604`
-- `DB_ENCRYPT=false`
-- `DB_TRUST_SERVER_CERT=false`
+| Requirement | Notes |
+|---|---|
+| Python 3.11+ | [python.org](https://www.python.org/downloads/) — check "Add to PATH" during install |
+| ODBC Driver 18 | [Microsoft download](https://learn.microsoft.com/en-us/sql/connect/odbc/download-odbc-driver-for-sql-server) — required for SQL Server connectivity |
+| Network access | Must be on the Everest network or VPN to reach `ERRSACTDBP1` |
 
-Quarterly CatAccum roll-forward: update **one** value only:
-- `DB_CATACCUM_DATABASE=CatAccumYYMM` (example: `CatAccum2604` → `CatAccum2607`)
+Node.js is **not required** — the Angular frontend is pre-built and committed to `static/angular/`.
 
-## 3) Install and run
-```bash
-npm install
-npm run dev
+---
+
+## Setup
+
+### 1. Clone and create virtual environment
+
+```powershell
+git clone https://github.com/J0Everest/cat-nip.git
+cd cat-nip
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-Open: http://localhost:3000
+### 2. Configure environment
 
-## API
-- `GET /api/health`
-- `GET /api/placements`
-- `POST /api/copilot/ask`
+```powershell
+copy .env.example .env
+```
 
-## Notes
-- Frontend is in [public/index.html](public/index.html) and [public/app.js](public/app.js).
-- Data is loaded from SQL on page load.
-- Set `DB_CATACCUM_DATABASE=CatAccum` (or your CatAccum DB name) in `.env` for Copilot peril/region impact questions.
-- For Windows Integrated Security, ensure the app runs under a Windows account with read access to CatAccum tables.
+The defaults in `.env.example` work out of the box on the Everest domain (Windows Integrated Security, `ERRSACTDBP1`). Edit `.env` only if your setup differs:
+
+| Variable | Default | Change if… |
+|---|---|---|
+| `DB_SERVER_CURRENT` | `ERRSACTDBP1` | Using a different SQL Server |
+| `DB_CATACCUM_DATABASE` | `CatAccum2604` | New quarter — update to e.g. `CatAccum2607` |
+| `AIR_EVENTS_DB` | `AIREvents2025_TS13` | AIR model year refreshed |
+| `DB_AUTH_MODE` | `windows` | Running outside domain — set `sql` and fill `DB_USER`/`DB_PASSWORD` |
+
+### 3. Initialize the database
+
+```powershell
+python manage.py migrate
+```
+
+This creates the local SQLite database used for saved scenarios.
+
+### 4. Run
+
+```powershell
+python manage.py runserver
+```
+
+Open **http://localhost:8000**
+
+---
+
+## Quick start (PowerShell one-liner)
+
+```powershell
+.\run-app.ps1
+```
+
+---
+
+## Quarterly database roll-forward
+
+Update one line in `.env`:
+
+```
+DB_CATACCUM_DATABASE=CatAccum2607   # change YYMM to the new quarter
+```
+
+Or use the **Next Qtr** button in the sidebar — it auto-increments the database name and updates the active connection.
+
+---
+
+## Project structure
+
+```
+apps/
+  core/          Django settings, health/config endpoints
+  db/            SQL Server connection helpers (pyodbc + pymssql fallback)
+  scenario/      Main app — parse, search, analyze, saved scenarios
+client/          Angular source (TypeScript + Angular Material)
+static/angular/  Pre-built Angular SPA (committed — no rebuild needed to run)
+```
+
+## Rebuilding the frontend (optional)
+
+Only needed if you modify Angular source files under `client/src/`:
+
+```powershell
+cd client
+npm install       # one-time
+npx ng build
+cd ..
+```
