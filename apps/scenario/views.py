@@ -7,7 +7,7 @@ from django.conf import settings
 
 from apps.db.connection import run_sql
 from apps.scenario.models import SavedScenario
-from apps.scenario.catalogs import _PERIL_TO_MODELS
+from apps.scenario.catalogs import MODEL_CATALOG, _PERIL_TO_MODELS
 from apps.scenario.serializers import (
     ParseQuerySerializer, SearchEventsSerializer,
     AnalyzeSerializer, PreviewSqlSerializer,
