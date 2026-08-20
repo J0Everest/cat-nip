@@ -267,7 +267,11 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
     this.emitChange();
   }
 
+  private lastLoadedPeril = '__unset__';
+
   private loadZones(): void {
+    if (this.peril === this.lastLoadedPeril) return;
+    this.lastLoadedPeril = this.peril;
     this.api.getZones(this.peril).subscribe({
       next: (r) => {
         this.zones = r.zones;
