@@ -7,8 +7,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
@@ -20,8 +20,8 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '
   selector: 'app-refine-filters',
   imports: [
     DecimalPipe, FormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule,
-    MatSelectModule, MatSliderModule, MatCheckboxModule, MatRadioModule,
-    MatButtonModule, MatChipsModule, MatProgressSpinnerModule, MatAutocompleteModule,
+    MatSelectModule, MatSliderModule, MatCheckboxModule,
+    MatButtonModule, MatIconModule, MatChipsModule, MatProgressSpinnerModule, MatAutocompleteModule,
   ],
   template: `
     <mat-expansion-panel [expanded]="autoExpand" class="refine-panel">
@@ -79,60 +79,55 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '
         </div>
       }
 
-      <mat-radio-group [(ngModel)]="filterMode" (ngModelChange)="emitChange()" class="filter-mode-group">
-        <mat-radio-button value="Industry Loss">Industry Loss</mat-radio-button>
-        <mat-radio-button value="Event Characteristics">Event Characteristics</mat-radio-button>
-        <mat-radio-button value="Both">Both</mat-radio-button>
-      </mat-radio-group>
-
-      @if (filterMode !== 'Industry Loss') {
-        <div class="char-row">
-          <mat-form-field appearance="outline" class="filter-field">
-            <mat-label>Event description keyword</mat-label>
-            <input matInput [(ngModel)]="eventKeyword" (ngModelChange)="emitChange()">
-          </mat-form-field>
-
-          @if (selectedProfile?.mag_col) {
-            <div class="slider-group filter-field">
-              <label class="slider-label">{{ peril === 'EQ' ? 'Magnitude' : 'Intensity' }}: {{ magLo | number:'1.1-1' }} &ndash; {{ magHi | number:'1.1-1' }}</label>
-              <mat-slider min="0" max="12" step="0.1" [discrete]="true" [displayWith]="displayMag">
-                <input matSliderStartThumb [(ngModel)]="magLo" (ngModelChange)="emitChange()">
-                <input matSliderEndThumb [(ngModel)]="magHi" (ngModelChange)="emitChange()">
-              </mat-slider>
-            </div>
+      <div class="char-row">
+        <mat-form-field appearance="outline" class="filter-field keyword-field">
+          <mat-label>Event keyword or description</mat-label>
+          <input matInput [(ngModel)]="eventKeyword" (ngModelChange)="emitChange()"
+                 placeholder="{{ airDescriptions.length > 0 ? 'Type to filter ' + airDescriptions.length + ' descriptions...' : 'e.g. Florida, Gulf Coast...' }}">
+          @if (eventKeyword) {
+            <button matSuffix mat-icon-button (click)="clearKeyword()" aria-label="Clear">
+              <mat-icon>close</mat-icon>
+            </button>
           }
-        </div>
+        </mat-form-field>
 
-        <mat-checkbox [(ngModel)]="useAir" (ngModelChange)="emitChange()">
-          Enrich from {{ dbConfig.airEventsDb() || 'AIREvents' }}
-        </mat-checkbox>
+        @if (selectedProfile?.mag_col) {
+          <div class="slider-group filter-field">
+            <label class="slider-label">{{ peril === 'EQ' ? 'Magnitude' : 'Intensity' }}: {{ magLo | number:'1.1-1' }} &ndash; {{ magHi | number:'1.1-1' }}</label>
+            <mat-slider min="0" max="12" step="0.1" [discrete]="true" [displayWith]="displayMag">
+              <input matSliderStartThumb [(ngModel)]="magLo" (ngModelChange)="emitChange()">
+              <input matSliderEndThumb [(ngModel)]="magHi" (ngModelChange)="emitChange()">
+            </mat-slider>
+          </div>
+        }
+      </div>
 
-        @if (useAir && airTables.length > 0) {
-          <mat-form-field appearance="outline" class="air-table-field">
-            <mat-label>AIR Events Table</mat-label>
-            <mat-select [(ngModel)]="selectedAirTable" (ngModelChange)="onAirTableChange()">
-              @for (t of airTables; track t.label) {
-                <mat-option [value]="t.label">
-                  {{ t.label }}
-                  @if (t.label === recommendedTable) { (recommended) }
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+      <mat-checkbox [(ngModel)]="useAir" (ngModelChange)="emitChange()">
+        Enrich from {{ dbConfig.airEventsDb() || 'AIREvents' }}
+      </mat-checkbox>
 
-          @if (airDescriptions.length > 0) {
-            <div class="desc-section">
-              <mat-form-field appearance="outline" class="air-table-field">
-                <mat-label>Filter descriptions ({{ airDescriptions.length }} available)</mat-label>
-                <input matInput [(ngModel)]="descSearch" placeholder="Type to filter...">
-              </mat-form-field>
-              <div class="desc-chips">
-                @for (d of filteredDescriptions; track d) {
-                  <span class="desc-chip" [class.active]="eventKeyword === d" (click)="onDescChipClick(d)">{{ d }}</span>
-                }
-              </div>
-            </div>
-          }
+      @if (useAir && airTables.length > 0) {
+        <mat-form-field appearance="outline" class="air-table-field">
+          <mat-label>AIR Events Table</mat-label>
+          <mat-select [(ngModel)]="selectedAirTable" (ngModelChange)="onAirTableChange()">
+            @for (t of airTables; track t.label) {
+              <mat-option [value]="t.label">
+                {{ t.label }}
+                @if (t.label === recommendedTable) { (recommended) }
+              </mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        @if (airDescriptions.length > 0) {
+          <div class="desc-chips">
+            @for (d of filteredDescriptions; track d) {
+              <span class="desc-chip" [class.active]="eventKeyword === d" (click)="onDescChipClick(d)">{{ d }}</span>
+            }
+            @if (filteredDescriptions.length === 0) {
+              <span class="no-match">No descriptions match "{{ eventKeyword }}"</span>
+            }
+          </div>
         }
       }
     </mat-expansion-panel>
@@ -145,9 +140,9 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '
     .refine-panel { margin-bottom: 16px; }
     .filter-row, .char-row { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 8px; }
     .filter-field { flex: 1; min-width: 200px; }
+    .keyword-field { flex: 2; }
     .slider-group { display: flex; flex-direction: column; }
     .slider-label { font-size: 0.78rem; color: #666; margin-bottom: 4px; }
-    .filter-mode-group { display: flex; gap: 16px; margin: 12px 0; }
     .air-table-field { width: 100%; margin-top: 8px; }
     .search-btn { width: 100%; margin: 16px 0 32px; height: 48px; font-size: 1rem; }
     .region-section { margin: 12px 0; }
@@ -157,18 +152,18 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse, ModelEntry } from '
       font-size: 0.7rem; background: #EBF0FE; color: #235CF4;
       padding: 2px 10px; border-radius: 12px; font-weight: 500;
     }
-    .desc-section { margin-top: 4px; }
     .desc-chips {
       display: flex; flex-wrap: wrap; gap: 6px;
-      margin: 8px 0 4px; max-height: 120px; overflow-y: auto;
+      margin: 8px 0 4px; max-height: 140px; overflow-y: auto;
     }
     .desc-chip {
       font-size: 0.72rem; background: #EBF0FE; color: #235CF4; border-radius: 12px;
       padding: 3px 10px; cursor: pointer; transition: background 0.15s;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 320px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 360px;
     }
     .desc-chip:hover { background: #C7D5FC; }
     .desc-chip.active { background: #235CF4; color: #fff; }
+    .no-match { font-size: 0.75rem; color: #A4ABC8; padding: 4px 0; }
   `],
 })
 export class RefineFiltersComponent implements OnChanges, OnInit {
@@ -192,14 +187,12 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
   zone = '';
   lossLo = 0;
   lossHi = 300;
-  filterMode = 'Industry Loss';
   eventKeyword = '';
   useAir = true;
   selectedAirTable = '';
   magLo = 0;
   magHi = 12;
   sliderMax = 50;
-  descSearch = '';
 
   zones: string[] = [];
   filteredZones: string[] = [];
@@ -214,7 +207,7 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
   }
 
   get filteredDescriptions(): string[] {
-    const q = this.descSearch.toLowerCase();
+    const q = this.eventKeyword.toLowerCase();
     return (q
       ? this.airDescriptions.filter(d => d.toLowerCase().includes(q))
       : this.airDescriptions
@@ -321,12 +314,16 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
   }
 
   onAirTableChange(): void {
-    this.descSearch = '';
     this.emitChange();
   }
 
   onDescChipClick(d: string): void {
     this.eventKeyword = d;
+    this.emitChange();
+  }
+
+  clearKeyword(): void {
+    this.eventKeyword = '';
     this.emitChange();
   }
 
@@ -350,7 +347,7 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
       zone: this.zone,
       lossLo: this.lossLo,
       lossHi: this.lossHi,
-      filterMode: this.filterMode,
+      filterMode: 'Both',
       eventKeyword: this.eventKeyword,
       useAir: this.useAir,
       airTableSchema: table?.schema ?? '',

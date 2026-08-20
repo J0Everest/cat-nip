@@ -5,6 +5,7 @@ import { ScenarioApiService } from '../../core/services/scenario-api.service';
 import { DatabaseConfigService } from '../../core/services/database-config.service';
 import { ParsedScenario, AirTableProfile } from '../../core/models/scenario.models';
 import { CandidateEvent, AnalyzeResponse, SavedScenario } from '../../core/models/event.models';
+import { MatExpansionModule } from '@angular/material/expansion';
 import { StepIndicatorComponent } from './components/step-indicator/step-indicator.component';
 import { PromptHeroComponent } from './components/prompt-hero/prompt-hero.component';
 import { ParsedEventCardComponent } from './components/parsed-event-card/parsed-event-card.component';
@@ -31,7 +32,7 @@ export interface RefineState {
 @Component({
   selector: 'app-scenario-builder',
   imports: [
-    StepIndicatorComponent, PromptHeroComponent, ParsedEventCardComponent,
+    MatExpansionModule, StepIndicatorComponent, PromptHeroComponent, ParsedEventCardComponent,
     RefineFiltersComponent, CandidateEventsTableComponent,
     ScenarioAssignmentComponent, ResultsDashboardComponent,
   ],
@@ -54,10 +55,16 @@ export interface RefineState {
     }
 
     @if (candidates().length > 0) {
-      <app-candidate-events-table
-        [events]="candidates()"
-        [loading]="searchLoading()"
-        (eventsSelected)="onEventsSelected($event)" />
+      <mat-expansion-panel class="candidates-panel" [expanded]="false">
+        <mat-expansion-panel-header>
+          <mat-panel-title>Candidate Events</mat-panel-title>
+          <mat-panel-description>{{ candidates().length }} event{{ candidates().length !== 1 ? 's' : '' }} found — expand to review or change selection</mat-panel-description>
+        </mat-expansion-panel-header>
+        <app-candidate-events-table
+          [events]="candidates()"
+          [loading]="searchLoading()"
+          (eventsSelected)="onEventsSelected($event)" />
+      </mat-expansion-panel>
 
       <app-scenario-assignment
         [events]="selectedEvents().length ? selectedEvents() : candidates()"
@@ -77,6 +84,8 @@ export interface RefineState {
   `,
   styles: [`
     :host { display: block; max-width: 1200px; margin: 0 auto; padding-bottom: 48px; }
+    .candidates-panel { margin: 24px 0 0; }
+    ::ng-deep .candidates-panel .mat-expansion-panel-header-description { color: #A4ABC8; font-size: 0.82rem; }
     .error-banner {
       background: #F8D7DA;
       color: #DA1E28;
@@ -216,14 +225,27 @@ export class ScenarioBuilderComponent implements OnInit, OnDestroy {
 
     this.api.searchEvents(body).subscribe({
       next: (res) => {
-        this.candidates.set(res.events.map(e => ({ ...e, selected: false })));
+        const events = res.events.map(e => ({ ...e, selected: false }));
+        this.candidates.set(events);
         this.searchLoading.set(false);
+        if (events.length > 0) {
+          this.onRunAnalysis(this.autoSelectIds(events));
+        }
       },
       error: (err) => {
         this.errorMsg.set(err?.error?.error ?? 'Search failed');
         this.searchLoading.set(false);
       },
     });
+  }
+
+  private autoSelectIds(events: CandidateEvent[]): { low: number; med: number; high: number } {
+    const sorted = [...events].sort((a, b) => a.industry_loss_b - b.industry_loss_b);
+    return {
+      low: sorted[0]?.event_id ?? 0,
+      med: sorted[Math.floor(sorted.length / 2)]?.event_id ?? 0,
+      high: sorted[sorted.length - 1]?.event_id ?? 0,
+    };
   }
 
   onEventsSelected(events: CandidateEvent[]): void {
