@@ -100,6 +100,12 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse } from '../../../../
 
       <!-- Description chips from AIR -->
       @if (airDescriptions.length > 0) {
+        <div class="desc-chips-header">
+          <span class="desc-count">{{ filteredDescriptions.length }} of {{ airDescriptions.length }} descriptions</span>
+          @if (filteredDescriptions.length > 0) {
+            <button mat-button class="select-all-btn" (click)="selectAllFiltered()">Select all</button>
+          }
+        </div>
         <div class="desc-chips">
           @for (d of filteredDescriptions; track d) {
             <span class="desc-chip" [class.active]="isSelected(d)" (click)="toggleKeyword(d)">{{ d }}</span>
@@ -168,7 +174,12 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse } from '../../../../
     }
     .desc-chip:hover { background: #C7D5FC; }
     .desc-chip.active { background: #235CF4; color: #fff; }
-    .no-match { font-size: 0.75rem; color: #A4ABC8; padding: 4px 0; }
+    .desc-chips-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin: 4px 0 4px;
+    }
+    .desc-count { font-size: 0.72rem; color: #A4ABC8; }
+    .select-all-btn { font-size: 0.72rem; color: #235CF4; height: 24px; min-width: 0; padding: 0 8px; }
 
     .air-row {
       display: flex; align-items: center; gap: 12px; margin-top: 4px;
@@ -240,6 +251,14 @@ export class RefineFiltersComponent implements OnChanges, OnInit {
       this.selectedKeywords = this.selectedKeywords.filter(k => k !== d);
     }
     this.emitChange();
+  }
+
+  selectAllFiltered(): void {
+    const toAdd = this.filteredDescriptions.filter(d => !this.selectedKeywords.includes(d));
+    if (toAdd.length > 0) {
+      this.selectedKeywords = [...this.selectedKeywords, ...toAdd];
+      this.emitChange();
+    }
   }
 
   removeKeyword(kw: string): void {
