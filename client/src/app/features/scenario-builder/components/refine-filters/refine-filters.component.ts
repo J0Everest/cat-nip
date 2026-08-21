@@ -59,12 +59,30 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse } from '../../../../
         </div>
       </div>
 
-      <!-- Row 2: Keyword search + optional magnitude slider -->
+      <!-- AIR source header: table selector + DB ref (shown above descriptions it controls) -->
+      @if (airTables.length > 0) {
+        <div class="air-source-row">
+          <span class="air-source-label">Event Source</span>
+          <mat-form-field appearance="outline" class="air-table-field">
+            <mat-select [(ngModel)]="selectedAirTable" (ngModelChange)="onAirTableChange()">
+              @for (t of airTables; track t.label) {
+                <mat-option [value]="t.label">
+                  {{ t.label }}
+                  @if (t.label === recommendedTable) { · recommended }
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+          <span class="air-ref">via {{ dbConfig.airEventsDb() || 'AIREvents' }}</span>
+        </div>
+      }
+
+      <!-- Search + optional magnitude slider -->
       <div class="char-row">
         <mat-form-field appearance="outline" class="filter-field keyword-field">
-          <mat-label>Event description</mat-label>
+          <mat-label>Search descriptions</mat-label>
           <mat-icon matPrefix class="search-icon">search</mat-icon>
-          <input matInput [(ngModel)]="descSearch" placeholder="{{ airDescriptions.length > 0 ? 'Search ' + airDescriptions.length + ' descriptions...' : 'Search or type keyword...' }}">
+          <input matInput [(ngModel)]="descSearch" placeholder="{{ airDescriptions.length > 0 ? airDescriptions.length + ' descriptions available...' : 'Type a keyword...' }}">
           @if (descSearch) {
             <button matSuffix mat-icon-button (click)="descSearch = ''" aria-label="Clear search">
               <mat-icon>close</mat-icon>
@@ -98,7 +116,7 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse } from '../../../../
         </div>
       }
 
-      <!-- Description chips from AIR -->
+      <!-- Description chips -->
       @if (airDescriptions.length > 0) {
         <div class="desc-chips-header">
           <span class="desc-count">{{ filteredDescriptions.length }} of {{ airDescriptions.length }} descriptions</span>
@@ -113,24 +131,6 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse } from '../../../../
           @if (filteredDescriptions.length === 0 && descSearch) {
             <span class="no-match">No descriptions match "{{ descSearch }}"</span>
           }
-        </div>
-      }
-
-      <!-- AIR table selector + subtle DB reference -->
-      @if (airTables.length > 0) {
-        <div class="air-row">
-          <mat-form-field appearance="outline" class="air-table-field">
-            <mat-label>AIR Table</mat-label>
-            <mat-select [(ngModel)]="selectedAirTable" (ngModelChange)="onAirTableChange()">
-              @for (t of airTables; track t.label) {
-                <mat-option [value]="t.label">
-                  {{ t.label }}
-                  @if (t.label === recommendedTable) { <span class="rec-badge">recommended</span> }
-                </mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-          <span class="air-ref">via {{ dbConfig.airEventsDb() || 'AIREvents' }}</span>
         </div>
       }
 
@@ -181,10 +181,15 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse } from '../../../../
     .desc-count { font-size: 0.72rem; color: #A4ABC8; }
     .select-all-btn { font-size: 0.72rem; color: #235CF4; height: 24px; min-width: 0; padding: 0 8px; }
 
-    .air-row {
-      display: flex; align-items: center; gap: 12px; margin-top: 4px;
+    .air-source-row {
+      display: flex; align-items: center; gap: 10px; margin: 12px 0 8px;
+      padding: 6px 12px; background: #F5F7FF; border-radius: 8px; border: 1px solid #E2E8F0;
     }
-    .air-table-field { flex: 1; }
+    .air-source-label {
+      font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: #A4ABC8; white-space: nowrap;
+    }
+    .air-table-field { flex: 1; margin: -8px 0; }
     .air-ref { font-size: 0.68rem; color: #A4ABC8; white-space: nowrap; }
     .rec-badge {
       font-size: 0.6rem; background: #E8F5E9; color: #388E3C;
