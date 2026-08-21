@@ -21,7 +21,7 @@ export interface RefineState {
   lossLo: number;
   lossHi: number;
   filterMode: string;
-  eventKeyword: string;
+  eventKeywords: string[];
   useAir: boolean;
   airTableSchema: string;
   airTableName: string;
@@ -179,7 +179,7 @@ export class ScenarioBuilderComponent implements OnInit, OnDestroy {
     if (state.peril && state.peril !== this.parsed()?.peril) {
       this.loadAirTables(state.peril, state.zone, this.rawQuery());
     }
-    if (state.useAir && state.airTableSchema && state.airTableName) {
+    if (state.airTableSchema && state.airTableName) {
       const descKey = `${state.peril}|${state.zone}|${state.airTableSchema}|${state.airTableName}`;
       if (descKey !== this.lastDescriptionsKey) {
         this.lastDescriptionsKey = descKey;
@@ -209,11 +209,11 @@ export class ScenarioBuilderComponent implements OnInit, OnDestroy {
       zone_filter: zone,
       loss_lo: lossLo,
       loss_hi: lossHi,
-      filter_mode: s?.filterMode ?? 'Industry Loss',
-      event_keyword: s?.eventKeyword ?? p?.event_keyword ?? '',
+      filter_mode: s?.filterMode ?? 'Both',
+      event_keywords: s?.eventKeywords ?? (p?.event_keyword ? [p.event_keyword] : []),
     };
 
-    if (s?.useAir && s.airTableSchema && s.airTableName) {
+    if (s?.airTableSchema && s.airTableName) {
       body.air_enrichment = {
         enabled: true,
         table_schema: s.airTableSchema,
@@ -287,7 +287,7 @@ export class ScenarioBuilderComponent implements OnInit, OnDestroy {
         loss_lo: s?.lossLo ?? p?.loss_lo ?? 0,
         loss_hi: s?.lossHi ?? p?.loss_hi ?? 300,
         filter_mode: s?.filterMode ?? 'Industry Loss',
-        event_keyword: s?.eventKeyword ?? p?.event_keyword ?? '',
+        event_keyword: (s?.eventKeywords ?? []).join('|') || p?.event_keyword || '',
         low_event_id: ids.low,
         med_event_id: ids.med,
         high_event_id: ids.high,

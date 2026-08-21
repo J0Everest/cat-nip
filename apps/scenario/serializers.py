@@ -43,9 +43,13 @@ class SearchEventsSerializer(serializers.Serializer):
     loss_hi = serializers.FloatField(default=300.0)
     filter_mode = serializers.ChoiceField(
         choices=["Industry Loss", "Event Characteristics", "Both"],
-        default="Industry Loss",
+        default="Both",
     )
     event_keyword = serializers.CharField(default="", allow_blank=True)
+    event_keywords = serializers.ListField(
+        child=serializers.CharField(allow_blank=False),
+        default=list, allow_empty=True,
+    )
     air_enrichment = AirEnrichmentSerializer(required=False)
 
 

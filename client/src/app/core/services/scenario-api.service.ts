@@ -53,7 +53,7 @@ export class ScenarioApiService {
     loss_lo: number;
     loss_hi: number;
     filter_mode: string;
-    event_keyword: string;
+    event_keywords: string[];
     air_enrichment?: {
       enabled: boolean;
       table_schema: string;

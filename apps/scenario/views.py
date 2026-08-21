@@ -120,8 +120,14 @@ class SearchEventsView(APIView):
         server, database = _get_db_context(request)
 
         air = d.get("air_enrichment", {})
-        use_air = air.get("enabled", False)
-        event_kw_for_sql = "" if use_air else d["event_keyword"]
+        use_air = air.get("enabled", True)  # always enriched
+
+        # Resolve keyword list: prefer explicit list, fall back to single string
+        keywords = [k.strip() for k in d.get("event_keywords", []) if k.strip()]
+        if not keywords and d.get("event_keyword", "").strip():
+            keywords = [d["event_keyword"].strip()]
+
+        event_kw_for_sql = "" if use_air else (keywords[0] if keywords else "")
 
         try:
             sql = build_event_search_sql(
@@ -147,10 +153,15 @@ class SearchEventsView(APIView):
                 air_df = fetch_air_event_details(server, database, event_ids, profile)
                 if air_df is not None and not air_df.empty:
                     df = df.merge(air_df, on="EventID", how="left")
-                    if d["event_keyword"] and "AIR_Description" in df.columns:
-                        df = df[df["AIR_Description"].astype(str).str.contains(
-                            d["event_keyword"], case=False, na=False
-                        )]
+                    if keywords and "AIR_Description" in df.columns:
+                        mask = df["AIR_Description"].astype(str).str.contains(
+                            keywords[0], case=False, na=False
+                        )
+                        for kw in keywords[1:]:
+                            mask |= df["AIR_Description"].astype(str).str.contains(
+                                kw, case=False, na=False
+                            )
+                        df = df[mask]
                     mag_lo = air.get("mag_lo", 0.0)
                     mag_hi = air.get("mag_hi", 12.0)
                     if not (float(mag_lo) <= 0.0 and float(mag_hi) >= 12.0):
