@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges, OnInit, inject } from '@angular/core';
-import { DecimalPipe } from '@angular/common';
+import { DecimalPipe, SlicePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,7 +17,7 @@ import { ParsedScenario, AirTableProfile, ModelInfoResponse } from '../../../../
 @Component({
   selector: 'app-refine-filters',
   imports: [
-    DecimalPipe, FormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule,
+    DecimalPipe, SlicePipe, FormsModule, MatExpansionModule, MatFormFieldModule, MatInputModule,
     MatSelectModule, MatSliderModule, MatButtonModule, MatIconModule,
     MatChipsModule, MatAutocompleteModule,
   ],
